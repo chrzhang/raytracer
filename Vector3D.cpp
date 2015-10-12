@@ -1,6 +1,7 @@
 #include "Vector3D.h"
 
 #include <cmath>
+#include <iostream>
 
 Vector3D::Vector3D() {
 
@@ -87,5 +88,13 @@ Vector3D operator*(const Vector3D & v, double scale) {
 Vector3D operator*(double scale, const Vector3D & v) {
 
     return v * scale;
+
+}
+
+std::ostream & operator<<(std::ostream & os, const Vector3D & v) {
+
+    os << "(" << v.getX() << "," << v.getY() << "," << v.getZ() << ")";
+
+    return os;
 
 }
