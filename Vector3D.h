@@ -12,7 +12,12 @@ class Vector3D {
         double getX() const;
         double getY() const;
         double getZ() const;
-
+        double getMagnitude() const;
+        Vector3D normalize() const;
+        Vector3D invert() const;
+        double dotProduct(const Vector3D & v) const;
+        Vector3D crossProduct(const Vector3D & v) const;
+        friend Vector3D operator+(const Vector3D & lhs, const Vector3D & rhs);
 
 };
 
