@@ -15,6 +15,7 @@
 #include "PPMWriter.h"
 #include "Vector3D.h"
 #include "Ray3D.h"
+#include "Camera.h"
 
 int main() {
 
@@ -29,6 +30,24 @@ int main() {
     RGBType * pixels = new RGBType[n];
 
     size_t pixelindex;
+
+    Vector3D X(1,0,0);
+    Vector3D Y(0,1,0);
+    Vector3D Z(0,0,1);
+
+    Vector3D look_at(0,0,0);
+    Vector3D campos(3,1.5,-4);
+
+    Vector3D diff_btw(campos.getX() - look_at.getX(),
+                      campos.getY() - look_at.getY(),
+                      campos.getZ() - look_at.getZ());
+
+    Vector3D camdir = diff_btw.invert().normalize();
+    Vector3D camright = Y.crossProduct(camdir).normalize();
+    Vector3D camdown = camright.crossProduct(camdir);
+
+    Camera scene_cam(campos, camdir, camright, camdown);
+
     for (size_t x = 0; x < width; ++x) {
 
         for (size_t y = 0; y < height; ++y) {
