@@ -13,7 +13,8 @@
 
 #include "RGBType.h"
 #include "PPMWriter.h"
-
+#include "Vector3D.h"
+#include "Ray3D.h"
 
 int main() {
 
