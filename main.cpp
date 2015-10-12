@@ -36,15 +36,22 @@ int main() {
     Vector3D Z(0,0,1);
 
     Vector3D look_at(0,0,0);
+    std::cout << "look_at" << look_at << std::endl;
     Vector3D campos(3,1.5,-4);
+    std::cout << "campos" << campos << std::endl;
 
     Vector3D diff_btw(campos.getX() - look_at.getX(),
                       campos.getY() - look_at.getY(),
                       campos.getZ() - look_at.getZ());
 
+    std::cout << "diff_btw" << diff_btw << std::endl;
+
     Vector3D camdir = diff_btw.invert().normalize();
+    std::cout << "camdir" << camdir << std::endl;
     Vector3D camright = Y.crossProduct(camdir).normalize();
+    std::cout << "camright" << camright << std::endl;
     Vector3D camdown = camright.crossProduct(camdir);
+    std::cout << "camdown" << camdown<< std::endl;
 
     Camera scene_cam(campos, camdir, camright, camdown);
 
