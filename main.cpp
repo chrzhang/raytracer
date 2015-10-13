@@ -175,18 +175,18 @@ int main() {
             int foremostObjIndex = getForemostObjIndex(intersections);
             std::cout << foremostObjIndex;
 
-            size_t lowerx = 200;
-            size_t upperx = 440;
-            size_t lowery = 200;
-            size_t uppery = 280;
-            if ((x > lowerx && x < upperx) && (y > lowery && y < uppery)) {
-                pixels[pixelindex].r = rand() % 256;
-                pixels[pixelindex].g = rand() % 256;
-                pixels[pixelindex].b = rand() % 256;
-            } else {
+            if (foremostObjIndex == -1) {
                 pixels[pixelindex].r = 0;
                 pixels[pixelindex].g = 0;
                 pixels[pixelindex].b = 0;
+            } else if (foremostObjIndex == 0) {
+                pixels[pixelindex].r = 100;
+                pixels[pixelindex].g = 100;
+                pixels[pixelindex].b = 100;
+            } else {
+                pixels[pixelindex].r = 200;
+                pixels[pixelindex].g = 100;
+                pixels[pixelindex].b = 100;
             }
 
         }

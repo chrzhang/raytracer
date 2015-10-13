@@ -22,7 +22,7 @@ class Plane : public Object {
 
         Vector3D getNormal() const;
         double getDistance() const;
-        Color getColor() const;
+        virtual Color getColor() const;
         Vector3D getNormalAt(Vector3D point) const;
         virtual double findIntersection(Ray3D ray) const;
 

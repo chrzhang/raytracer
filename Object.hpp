@@ -11,7 +11,7 @@ class Object {
 
         Object();
 
-        Color getColor() const;
+        virtual Color getColor() const;
 
         virtual double findIntersection(Ray3D ray) const;
 
