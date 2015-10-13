@@ -20,6 +20,7 @@ class Vector3D {
         double dotProduct(const Vector3D & v) const;
         Vector3D crossProduct(const Vector3D & v) const;
         friend Vector3D operator+(const Vector3D & lhs, const Vector3D & rhs);
+        friend Vector3D operator-(const Vector3D & lhs, const Vector3D & rhs);
         friend Vector3D operator*(const Vector3D & v, double scale);
         friend Vector3D operator*(double scale, const Vector3D & v);
         friend std::ostream & operator<<(std::ostream & os, const Vector3D & v);

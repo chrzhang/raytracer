@@ -1,7 +1,7 @@
 #ifndef __CAMERA__
 #define __CAMERA__
 
-#include "Vector3D.h"
+#include "Vector3D.hpp"
 
 class Camera {
 

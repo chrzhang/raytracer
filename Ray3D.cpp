@@ -1,4 +1,4 @@
-#include "Ray3D.h"
+#include "Ray3D.hpp"
 
 Ray3D::Ray3D() {
 

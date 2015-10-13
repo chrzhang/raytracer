@@ -1,4 +1,4 @@
-#include "Vector3D.h"
+#include "Vector3D.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -74,6 +74,14 @@ Vector3D operator+(const Vector3D & lhs, const Vector3D & rhs) {
     return Vector3D(lhs.getX() + rhs.getX(),
                     lhs.getY() + rhs.getY(),
                     lhs.getZ() + rhs.getZ());
+
+}
+
+Vector3D operator-(const Vector3D & lhs, const Vector3D & rhs) {
+
+    return Vector3D(lhs.getX() - rhs.getX(),
+                    lhs.getY() - rhs.getY(),
+                    lhs.getZ() - rhs.getZ());
 
 }
 

@@ -1,7 +1,7 @@
 #ifndef __RAY3D__
 #define __RAY3D__
 
-#include "Vector3D.h"
+#include "Vector3D.hpp"
 
 class Ray3D {
 

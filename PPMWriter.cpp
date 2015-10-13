@@ -1,14 +1,15 @@
-#include "PPMWriter.h"
+#include "PPMWriter.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <ios>
 #include <cmath>
+#include <vector>
 
 #include "assert.h"
 
 void PPMWriter::saveppm(const char * filename, size_t width, size_t height,
-                        RGBType * data) {
+                        std::vector<RGBType> data) {
 
     assert(width != 0);
     assert(height != 0);
