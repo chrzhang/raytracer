@@ -23,6 +23,15 @@ class Color {
 
         friend std::ostream & operator<<(std::ostream & os, const Color & c);
 
+        double brightness() const;
+        Color colorScalar(double scale) const;
+
+        friend Color operator+(const Color & lhs, const Color & rhs);
+        friend Color operator*(const Color & lhs, const Color & rhs);
+
+        Color colorAverage(const Color & color) const;
+        Color clip();
+
 };
 
 #endif

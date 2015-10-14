@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <assert.h>
 
 #include "RGBType.hpp"
 #include "PPMWriter.hpp"
@@ -19,6 +20,7 @@
 #include "Color.hpp"
 #include "Light.hpp"
 #include "Object.hpp"
+#include "Source.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
 
@@ -77,16 +79,123 @@ int getForemostObjIndex(const std::vector<double> & intersections) {
     }
 }
 
+Color getColorAt(const Vector3D & intersectionPoint,
+                 const Vector3D & intersectionRayDirection,
+                 const std::vector<Object *> & scene_objects,
+                 int foremostObjIndex,
+                 const std::vector<Source *> & scene_lights,
+                 double accuracy,
+                 double ambientLight) {
+
+    // Get color of first object encountered
+    Color foremostObjColor = (scene_objects[foremostObjIndex])->getColor();
+
+    // Finds normal at the point of intersection
+    Vector3D foremostObjNormal =
+        (scene_objects[foremostObjIndex])->getNormalAt(intersectionPoint);
+
+    Color finalColor = foremostObjColor.colorScalar(ambientLight);
+
+    // Loop through lights
+    for (auto light_it = scene_lights.begin(); light_it != scene_lights.end();
+         ++light_it) {
+
+        // Finds direction to go from point of intersection to the light
+        Vector3D lightDirection = ((*light_it)->getPosition()) +
+                                  (intersectionPoint.invert());
+        lightDirection = lightDirection.normalize();
+
+        float cosine_angle = foremostObjNormal.dotProduct(lightDirection);
+
+        if (cosine_angle > 0) {
+            // Look for shadows
+            bool shadowed = false;
+            Vector3D distanceToLight =
+                (*light_it)->getPosition() +
+                (intersectionPoint.invert()); // TODO Check normalize
+            float distanceToLightMagnitude = distanceToLight.getMagnitude();
+
+            Ray3D shadow_ray(intersectionPoint,
+                             ((*light_it)->getPosition() +
+                             (intersectionPoint.invert())).normalize());
+
+            std::vector<double> secondary_intersections;
+
+            for (auto obj_it = scene_objects.begin();
+                 obj_it != scene_objects.end() && !shadowed;
+                 ++obj_it) {
+
+                // Check if there's any intersections between any object and
+                // the ray from the first intersection to light source
+                // If so, there's an obstacle and thus a shadow
+
+                secondary_intersections.push_back(
+                    (*obj_it)->findIntersection(shadow_ray));
+
+            }
+
+            for (size_t c = 0; c < secondary_intersections.size(); ++c) {
+
+                // Check secondary intersections and if the
+                if (secondary_intersections[c] > accuracy) {
+                    if (secondary_intersections[c] <= distanceToLightMagnitude) {
+                        shadowed = true;
+                    }
+                }
+                //break;
+
+            }
+
+            if (!shadowed) {
+
+                finalColor = finalColor + (foremostObjColor *
+                    (*light_it)->getColor()).colorScalar(cosine_angle);
+
+                if (finalColor.getSpecial() > 0 &&
+                    foremostObjColor.getSpecial() <= 1) { // Shiny value
+
+                    double dot1 = foremostObjNormal.
+                        dotProduct(intersectionRayDirection.invert());
+
+                    Vector3D scalar1 = foremostObjNormal * dot1;
+                    Vector3D add1 = scalar1 + intersectionRayDirection;
+                    Vector3D scalar2 = add1 * 2;
+                    Vector3D add2 = intersectionRayDirection.invert() + scalar2;
+                    Vector3D reflectionDirection = add2.normalize();
+                    double specular = reflectionDirection.
+                        dotProduct(lightDirection);
+                    if (specular > 0) {
+                        specular = pow(specular, 10);
+                        finalColor = finalColor + (*light_it)->getColor().
+                            colorScalar(specular *
+                                        foremostObjColor.getSpecial());
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    return finalColor.clip();
+
+}
+
 
 int main() {
 
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
 
-    size_t width = 640;
-    size_t height = 480;
+    size_t width = 1920;
+    size_t height = 1080;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
+
+    double ambientLight = 0.2;
+    double accuracy = 0.000001;
 
     std::vector<RGBType> pixels(n, RGBType());
 
@@ -111,27 +220,34 @@ int main() {
     std::cout << "camdir" << camdir << std::endl;
     Vector3D camright = Y.crossProduct(camdir).normalize();
     std::cout << "camright" << camright << std::endl;
-    Vector3D camdown = camright.crossProduct(camdir);
+    Vector3D camdown = camright.crossProduct(camdir).invert();
     std::cout << "camdown" << camdown<< std::endl;
 
     Camera scene_cam(campos, camdir, camright, camdown);
 
     Color white_light(1.0, 1.0, 1.0, 0);
     Color pretty_green(0.5, 1.0, 0.5, 0.3);
+    Color purple(0.5, 0.3, 0.9, 0.8);
     Color gray(0.5, 0.5, 0.5, 0);
     Color black(0.0, 0.0, 0.0, 0);
     Color maroon(0.5, 0.25, 0.25, 0);
 
-    Vector3D light_position(-7, 10, -10);
+    Vector3D light_position(-7, 5, -10);
     Light scene_light(light_position, white_light);
 
     // Objects in scene
     Vector3D origin(0, 0, 0);
-    Sphere s(origin, 1, pretty_green);
+    Sphere s(origin, 1, purple);
+    Sphere s2(origin + Vector3D(0,0,3), 1, pretty_green);
     Plane p(Y, -1, maroon);
 
     std::vector<Object *> scene_objects;
+    std::vector<Source *> scene_lights;
+
+    scene_lights.push_back(dynamic_cast<Source *>(&scene_light));
+
     scene_objects.push_back(dynamic_cast<Object *>(&s));
+    scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
 
     double xamnt, yamnt;
@@ -176,17 +292,30 @@ int main() {
             std::cout << foremostObjIndex;
 
             if (foremostObjIndex == -1) {
+                // Set the background to black
                 pixels[pixelindex].r = 0;
                 pixels[pixelindex].g = 0;
                 pixels[pixelindex].b = 0;
-            } else if (foremostObjIndex == 0) {
-                pixels[pixelindex].r = 100;
-                pixels[pixelindex].g = 100;
-                pixels[pixelindex].b = 100;
             } else {
-                pixels[pixelindex].r = 200;
-                pixels[pixelindex].g = 100;
-                pixels[pixelindex].b = 100;
+                if (intersections[foremostObjIndex] > accuracy) {
+                    Vector3D intersectionPoint = cam_ray_origin +
+                        (cam_ray_direction * intersections[foremostObjIndex]);
+
+                    Vector3D intersectionRayDirection = cam_ray_direction;
+                    //Color c = scene_objects[foremostObjIndex]->getColor();
+                    // Resolve shadow
+                    Color c = getColorAt(intersectionPoint,
+                                         intersectionRayDirection,
+                                         scene_objects,
+                                         foremostObjIndex,
+                                         scene_lights,
+                                         accuracy,
+                                         ambientLight);
+                    // Get color intersection
+                    pixels[pixelindex].r = c.getRed();
+                    pixels[pixelindex].g = c.getGreen();
+                    pixels[pixelindex].b = c.getBlue();
+                }
             }
 
         }

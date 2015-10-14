@@ -11,9 +11,11 @@ class Object {
 
         Object();
 
-        virtual Color getColor() const;
+        virtual Color getColor() const = 0;
 
-        virtual double findIntersection(Ray3D ray) const;
+        virtual Vector3D getNormalAt(Vector3D point) const = 0;
+
+        virtual double findIntersection(Ray3D ray) const = 0;
 
 };
 

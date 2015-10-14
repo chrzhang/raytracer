@@ -1,10 +1,11 @@
 #ifndef __LIGHT__
 #define __LIGHT__
 
+#include "Source.hpp"
 #include "Vector3D.hpp"
 #include "Color.hpp"
 
-class Light {
+class Light : public Source {
 
     Vector3D position;
     Color color;
@@ -13,8 +14,8 @@ class Light {
 
         Light();
         Light(Vector3D position, Color color);
-        Vector3D getPosition() const;
-        Color getColor() const;
+        virtual Vector3D getPosition() const;
+        virtual Color getColor() const;
 
 };
 

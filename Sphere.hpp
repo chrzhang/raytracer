@@ -24,7 +24,7 @@ class Sphere : public Object {
         double getRadius() const;
         virtual Color getColor() const;
 
-        Vector3D getNormalAt(Vector3D point) const;
+        virtual Vector3D getNormalAt(Vector3D point) const;
         virtual double findIntersection(Ray3D ray) const;
 
 };
