@@ -46,6 +46,7 @@ int getForemostObjIndex(const std::vector<double> & intersections) {
     } else { // Multiple intersections
 
         double max = *intersections.begin();
+
         for (std::vector<double>::const_iterator it = intersections.begin();
              it != intersections.end(); ++it) {
 
@@ -54,6 +55,7 @@ int getForemostObjIndex(const std::vector<double> & intersections) {
             }
 
         }
+
         if (max > 0) {
 
             // Find the smallest positive number
@@ -231,6 +233,7 @@ int main() {
     Color gray(0.5, 0.5, 0.5, 0);
     Color black(0.0, 0.0, 0.0, 0);
     Color maroon(0.5, 0.25, 0.25, 0);
+    Color pink(1, 0.078, 0.576, 0);
 
     Vector3D light_position(-7, 5, -10);
     Light scene_light(light_position, white_light);
@@ -239,6 +242,7 @@ int main() {
     Vector3D origin(0, 0, 0);
     Sphere s(origin, 1, purple);
     Sphere s2(origin + Vector3D(0,0,3), 1, pretty_green);
+
     Plane p(Y, -1, maroon);
 
     std::vector<Object *> scene_objects;
@@ -249,6 +253,20 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&s));
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
+
+    std::vector<Sphere> spheres;
+    for (int i = 0; i < 100; ++i) {
+        Sphere ts(origin + Vector3D(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 5), 0.2,
+               Color((rand() % 10) / 10.0,
+                     (rand() % 10) / 10.0,
+                     (rand() % 10) / 10.0,
+                     0.3));
+        spheres.push_back(ts);
+    }
+
+    for (auto it = spheres.begin(); it != spheres.end(); ++it) {
+        scene_objects.push_back(dynamic_cast<Object *>(&(*it)));
+    }
 
     double xamnt, yamnt;
 
@@ -289,7 +307,6 @@ int main() {
 
             // Index of the least positive intersection is the closest object
             int foremostObjIndex = getForemostObjIndex(intersections);
-            std::cout << foremostObjIndex;
 
             if (foremostObjIndex == -1) {
                 // Set the background to black
