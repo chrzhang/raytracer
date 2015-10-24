@@ -92,6 +92,28 @@ Color getColorAt(const Vector3D & intersectionPoint,
     // Get color of first object encountered
     Color foremostObjColor = (scene_objects[foremostObjIndex])->getColor();
 
+    if (foremostObjColor.getSpecial() == 2) {
+
+        // Checkered / Tile Floor Pattern
+
+        int square = (int) floor(intersectionPoint.getX()) +
+                     (int) floor(intersectionPoint.getZ());
+
+        if (0 == square % 2) {
+            // Black tile
+            foremostObjColor.setRed(0);
+            foremostObjColor.setGreen(0);
+            foremostObjColor.setBlue(0);
+        } else {
+            // White tile
+            foremostObjColor.setRed(1);
+            foremostObjColor.setGreen(1);
+            foremostObjColor.setBlue(1);
+        }
+
+
+    }
+
     // Finds normal at the point of intersection
     Vector3D foremostObjNormal =
         (scene_objects[foremostObjIndex])->getNormalAt(intersectionPoint);
@@ -232,7 +254,7 @@ int main() {
     Color purple(0.5, 0.3, 0.9, 0.8);
     Color gray(0.5, 0.5, 0.5, 0);
     Color black(0.0, 0.0, 0.0, 0);
-    Color maroon(0.5, 0.25, 0.25, 0);
+    Color maroon(0.5, 0.25, 0.25, 2);
     Color pink(1, 0.078, 0.576, 0);
 
     Vector3D light_position(-7, 5, -10);
@@ -254,6 +276,7 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
 
+    /*
     std::vector<Sphere> spheres;
     for (int i = 0; i < 100; ++i) {
         Sphere ts(origin + Vector3D(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 5), 0.2,
@@ -267,6 +290,7 @@ int main() {
     for (auto it = spheres.begin(); it != spheres.end(); ++it) {
         scene_objects.push_back(dynamic_cast<Object *>(&(*it)));
     }
+    */
 
     double xamnt, yamnt;
 
