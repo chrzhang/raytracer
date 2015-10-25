@@ -6,6 +6,7 @@
 #include <cmath>
 #include <limits>
 #include <cstdlib>
+#include <ctime>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -120,6 +121,56 @@ Color getColorAt(const Vector3D & intersectionPoint,
 
     Color finalColor = foremostObjColor.colorScalar(ambientLight);
 
+    // Handle reflections by checking for light bouncing off intersection
+    if (foremostObjColor.getSpecial() > 0 &&
+        foremostObjColor.getSpecial() <= 1) {
+
+        // Reflection from objects with specular intensity
+        double dot1 = foremostObjNormal.dotProduct(intersectionRayDirection.invert());
+        Vector3D scalar1 = foremostObjNormal * dot1;
+        Vector3D add1 = scalar1 + intersectionRayDirection;
+        Vector3D scalar2 = add1 * 2;
+        Vector3D add2 = intersectionRayDirection.invert() + scalar2;
+        Vector3D reflection_direction = add2.normalize();
+
+        Ray3D reflection_ray(intersectionPoint, reflection_direction);
+
+        // Find first intersection of ray
+        std::vector<double> reflection_intersections;
+
+        for (size_t i = 0; i < scene_objects.size(); ++i) {
+            reflection_intersections.push_back(
+                scene_objects[i]->findIntersection(reflection_ray));
+        }
+
+        int indexOfForemostReflectedObject =
+            getForemostObjIndex(reflection_intersections);
+
+        if (indexOfForemostReflectedObject != -1) {
+            // Reflection ray missed everything
+            if (reflection_intersections[indexOfForemostReflectedObject] >
+                accuracy) {
+
+                Vector3D reflectionIntersectionPosition = intersectionPoint +
+                    (reflection_direction *
+                    reflection_intersections[indexOfForemostReflectedObject]);
+                Vector3D reflectionIntersectionDirection = reflection_direction;
+                Color reflection_intersection_color =
+                    getColorAt(reflectionIntersectionPosition,
+                               reflectionIntersectionDirection, scene_objects,
+                               indexOfForemostReflectedObject, scene_lights,
+                               accuracy, ambientLight);
+
+                finalColor = finalColor +
+                              reflection_intersection_color.colorScalar(
+                                foremostObjColor.getSpecial());
+            }
+
+        }
+
+
+    }
+
     // Loop through lights
     for (auto light_it = scene_lights.begin(); light_it != scene_lights.end();
          ++light_it) {
@@ -210,6 +261,10 @@ Color getColorAt(const Vector3D & intersectionPoint,
 
 int main() {
 
+    clock_t start, end;
+
+    start = clock();
+
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
 
@@ -251,7 +306,7 @@ int main() {
 
     Color white_light(1.0, 1.0, 1.0, 0);
     Color pretty_green(0.5, 1.0, 0.5, 0.3);
-    Color purple(0.5, 0.3, 0.9, 0.8);
+    Color purple(0.5, 0.3, 0.9, 0);
     Color gray(0.5, 0.5, 0.5, 0);
     Color black(0.0, 0.0, 0.0, 0);
     Color maroon(0.5, 0.25, 0.25, 2);
@@ -364,6 +419,12 @@ int main() {
     }
 
     PPMWriter::saveppm("scene.ppm", width, height, pixels);
+
+    end = clock();
+
+    float elapsed = ((float) end - (float) start) / CLOCKS_PER_SEC;
+
+    std::cout << elapsed << " seconds." << std::endl;
 
     return 0;
 
