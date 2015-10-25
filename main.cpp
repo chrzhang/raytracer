@@ -216,8 +216,8 @@ Color getColorAt(const Vector3D & intersectionPoint,
                     if (secondary_intersections[c] <= distanceToLightMagnitude) {
                         shadowed = true;
                     }
+                    break;
                 }
-                //break;
 
             }
 
@@ -278,6 +278,9 @@ int main() {
 
     std::vector<RGBType> pixels(n, RGBType());
 
+    int aadepth = 2; // sqrt of rays per pixel
+    //double aathreshold = 0.1;
+
     size_t pixelindex;
 
     Vector3D X(1,0,0);
@@ -331,7 +334,7 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
 
-    /*
+    /* // Add spheres of random color, size, and position
     std::vector<Sphere> spheres;
     for (int i = 0; i < 100; ++i) {
         Sphere ts(origin + Vector3D(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 5), 0.2,
@@ -347,72 +350,143 @@ int main() {
     }
     */
 
+    int aa_index;
     double xamnt, yamnt;
 
     for (size_t x = 0; x < width; ++x) {
 
         for (size_t y = 0; y < height; ++y) {
+
+            // For every pixel...
+
             pixelindex = y * width + x;
-            if (width > height) {
-                xamnt = ((x + 0.5) / width) * aspectRatio -
-                        (((width - height) / (double) height) / 2);
-                yamnt = ((height - y) + 0.5) / height;
-            } else if (height > width) {
-                xamnt = (x + 0.5) / width;
-                yamnt = (((height - y) + 0.5) / height) / aspectRatio -
-                        (((height - width) / (double) width) / 2);
-            } else {
-                xamnt = (x + 0.5) / width;
-                yamnt = ((height - y) + 0.5) / height;
-            }
 
-            Vector3D cam_ray_origin = scene_cam.getPosition();
-            Vector3D cam_ray_direction = (camdir + (camright * (xamnt - 0.5)) +
-                                         (camdown * (yamnt - 0.5))).normalize();
 
-            Ray3D cam_ray(cam_ray_origin, cam_ray_direction);
+            std::vector<double> tempRed(aadepth * aadepth, 0);
+            std::vector<double> tempGreen(aadepth * aadepth, 0);
+            std::vector<double> tempBlue(aadepth * aadepth, 0);
 
-            std::vector<double> intersections;
+            // Shoot additional rays for antialiasing per pixel
 
-            // Loop through objs and see if the ray intersects any objs
+            for (int aax = 0; aax < aadepth; ++aax) {
 
-            for (std::vector<Object *>::const_iterator it =
-                    scene_objects.begin();
-                 it != scene_objects.end(); ++it) {
+                for (int aay = 0; aay < aadepth; ++aay) {
 
-                intersections.push_back((*it)->findIntersection(cam_ray));
+                    aa_index = aay * aadepth + aax;
 
-            }
+                    if (aadepth == 1) {
 
-            // Index of the least positive intersection is the closest object
-            int foremostObjIndex = getForemostObjIndex(intersections);
+                        // No anti-aliasing, make normal perspective illusion
+                        if (width > height) {
+                            xamnt = ((x + 0.5) / width) * aspectRatio -
+                                    (((width - height) / (double) height) / 2);
+                            yamnt = ((height - y) + 0.5) / height;
+                        } else if (height > width) {
+                            xamnt = (x + 0.5) / width;
+                            yamnt = (((height - y) + 0.5) / height) /
+                                    aspectRatio -
+                                    (((height - width) / (double) width) / 2);
+                        } else {
+                            xamnt = (x + 0.5) / width;
+                            yamnt = ((height - y) + 0.5) / height;
+                        }
 
-            if (foremostObjIndex == -1) {
-                // Set the background to black
-                pixels[pixelindex].r = 0;
-                pixels[pixelindex].g = 0;
-                pixels[pixelindex].b = 0;
-            } else {
-                if (intersections[foremostObjIndex] > accuracy) {
-                    Vector3D intersectionPoint = cam_ray_origin +
-                        (cam_ray_direction * intersections[foremostObjIndex]);
+                    } else {
 
-                    Vector3D intersectionRayDirection = cam_ray_direction;
-                    //Color c = scene_objects[foremostObjIndex]->getColor();
-                    // Resolve shadow
-                    Color c = getColorAt(intersectionPoint,
-                                         intersectionRayDirection,
-                                         scene_objects,
-                                         foremostObjIndex,
-                                         scene_lights,
-                                         accuracy,
-                                         ambientLight);
-                    // Get color intersection
-                    pixels[pixelindex].r = c.getRed();
-                    pixels[pixelindex].g = c.getGreen();
-                    pixels[pixelindex].b = c.getBlue();
+                        // Replace 0.5 above with aax / aadepth - 1
+
+                        if (width > height) {
+                            xamnt = ((x + (double) aax / ((double) aadepth - 1))
+                                    / width) * aspectRatio -
+                                    (((width - height) / (double) height) / 2);
+                            yamnt = ((height - y) + (double) aax /
+                                     ((double) aadepth - 1)) / height;
+                        } else if (height > width) {
+                            xamnt = (x + (double) aax / ((double) aadepth - 1))
+                                    / width;
+                            yamnt = (((height - y) + (double) aax /
+                                     ((double) aadepth - 1)) / height)
+                                    / aspectRatio - (((height - width) /
+                                                      (double) width) / 2);
+                        } else {
+                            xamnt = (x + (double) aax / ((double) aadepth - 1))
+                                    / width;
+                            yamnt = ((height - y) + (double) aax /
+                                     ((double) aadepth - 1)) / height;
+                        }
+
+                    }
+
+                    Vector3D cam_ray_origin = scene_cam.getPosition();
+                    Vector3D cam_ray_direction = (camdir + (camright * (xamnt - 0.5)) +
+                                                 (camdown * (yamnt - 0.5))).normalize();
+
+                    Ray3D cam_ray(cam_ray_origin, cam_ray_direction);
+
+                    std::vector<double> intersections;
+
+                    // Loop through objs and see if the ray intersects any objs
+
+                    for (std::vector<Object *>::const_iterator it =
+                            scene_objects.begin();
+                         it != scene_objects.end(); ++it) {
+
+                        intersections.push_back((*it)->findIntersection(cam_ray));
+
+                    }
+
+                    // Index of the least positive intersection is the closest object
+                    int foremostObjIndex = getForemostObjIndex(intersections);
+
+                    if (foremostObjIndex == -1) {
+                        // Set the background to black
+                        tempRed[aa_index] = 0;
+                        tempGreen[aa_index] = 0;
+                        tempBlue[aa_index] = 0;
+                    } else {
+                        if (intersections[foremostObjIndex] > accuracy) {
+                            Vector3D intersectionPoint = cam_ray_origin +
+                                (cam_ray_direction * intersections[foremostObjIndex]);
+
+                            Vector3D intersectionRayDirection = cam_ray_direction;
+                            //Color c = scene_objects[foremostObjIndex]->getColor();
+                            // Resolve shadow
+                            Color c = getColorAt(intersectionPoint,
+                                                 intersectionRayDirection,
+                                                 scene_objects,
+                                                 foremostObjIndex,
+                                                 scene_lights,
+                                                 accuracy,
+                                                 ambientLight);
+                            // Get color intersection
+                            tempRed[aa_index] = c.getRed();
+                            tempGreen[aa_index] = c.getGreen();
+                            tempBlue[aa_index] = c.getBlue();
+                        }
+                    }
                 }
             }
+
+            double totalRed = 0;
+            double totalGreen = 0;
+            double totalBlue = 0;
+
+            for (int i = 0; i < aadepth * aadepth; ++i) {
+
+                totalRed += tempRed[i];
+                totalGreen += tempGreen[i];
+                totalBlue += tempBlue[i];
+
+            }
+
+            double avgRed = totalRed / (aadepth * aadepth);
+            double avgGreen = totalGreen / (aadepth * aadepth);
+            double avgBlue = totalBlue / (aadepth * aadepth);
+
+            // Use average color of all rays shot at a pixel to antialias
+            pixels[pixelindex].r = avgRed;
+            pixels[pixelindex].g = avgGreen;
+            pixels[pixelindex].b = avgBlue;
 
         }
 
