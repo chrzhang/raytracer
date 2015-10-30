@@ -8,7 +8,6 @@
 
 #include <cmath>
 
-
 class Plane : public Object {
 
     Vector3D normal;

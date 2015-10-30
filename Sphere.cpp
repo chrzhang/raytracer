@@ -65,10 +65,12 @@ double Sphere::findIntersection(Ray3D ray) const {
     double b = (2 * (rayOriginX - sphereCenterX) * rayDirectionX) +
                (2 * (rayOriginY - sphereCenterY) * rayDirectionY) +
                (2 * (rayOriginZ - sphereCenterZ) * rayDirectionZ);
+
     double c = pow(rayOriginX - sphereCenterX, 2) +
                pow(rayOriginY - sphereCenterY, 2) +
                pow(rayOriginZ - sphereCenterZ, 2) -
                (radius * radius);
+
     double discriminant = b * b - 4 * a * c;
 
     if (discriminant > 0) {
