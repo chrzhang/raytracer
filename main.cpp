@@ -26,6 +26,14 @@
 #include "Plane.hpp"
 #include "Triangle.hpp"
 
+Color randColor() {
+
+    return Color( ((rand() % 100) / 100.0),
+                  ((rand() % 100) / 100.0),
+                  ((rand() % 100) / 100.0),
+                  0 );
+
+}
 
 int getForemostObjIndex(const std::vector<double> & intersections) {
 
@@ -259,8 +267,45 @@ Color getColorAt(const Vector3D & intersectionPoint,
     return finalColor.clip();
 
 }
+/*
+void makeCube(Vector3D corner1, Vector3D corner2, Color color,
+              std::vector<Object *> & scene_objects) {
 
+    double c1x = corner1.getX();
+    double c1y = corner1.getY();
+    double c1z = corner1.getZ();
 
+    double c2x = corner2.getX();
+    double c2y = corner2.getY();
+    double c2z = corner2.getZ();
+
+    Vector3D A (c2x, c1y, c1z);
+    Vector3D B (c2x, c1y, c2z);
+    Vector3D C (c1x, c1y, c2z);
+
+    Vector3D D (c2x, c2y, c1z);
+    Vector3D E (c1x, c2y, c1z);
+    Vector3D F (c1x, c2y, c2z);
+
+    scene_objects.push_back(new Triangle(D, A, corner1, color));
+    scene_objects.push_back(new Triangle(corner1, E, D, color));
+
+    scene_objects.push_back(new Triangle(corner2, B, A, color));
+    scene_objects.push_back(new Triangle(A, D, corner2, color));
+
+    scene_objects.push_back(new Triangle(F, C, B, color));
+    scene_objects.push_back(new Triangle(B, corner2, F, color));
+
+    scene_objects.push_back(new Triangle(E, corner1, C, color));
+    scene_objects.push_back(new Triangle(C, F, E, color));
+
+    scene_objects.push_back(new Triangle(D, E, F, color));
+    scene_objects.push_back(new Triangle(F, corner2, D, color));
+
+    scene_objects.push_back(new Triangle(corner1, A, B, color));
+    scene_objects.push_back(new Triangle(B, C, corner1, color));
+}
+*/
 int main() {
 
     clock_t start, end;
@@ -270,8 +315,8 @@ int main() {
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
 
-    size_t width = 1920;
-    size_t height = 1080;
+    size_t width = 800;
+    size_t height = 600;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
 
@@ -280,7 +325,7 @@ int main() {
 
     std::vector<RGBType> pixels(n, RGBType());
 
-    int aadepth = 2; // sqrt of rays per pixel
+    int aadepth = 3; // sqrt of rays per pixel
     //double aathreshold = 0.1;
 
     size_t pixelindex;
@@ -338,6 +383,56 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
     scene_objects.push_back(dynamic_cast<Object *>(&t));
+
+    Vector3D corner1 = Vector3D(-1,-1,-1);
+    Vector3D corner2 = Vector3D(-5, 1, 1);
+
+    double c1x = corner1.getX();
+    double c1y = corner1.getY();
+    double c1z = corner1.getZ();
+
+    double c2x = corner2.getX();
+    double c2y = corner2.getY();
+    double c2z = corner2.getZ();
+
+    Vector3D A (c2x, c1y, c1z);
+    Vector3D B (c2x, c1y, c2z);
+    Vector3D C (c1x, c1y, c2z);
+
+    Vector3D D (c2x, c2y, c1z);
+    Vector3D E (c1x, c2y, c1z);
+    Vector3D F (c1x, c2y, c2z);
+
+    Triangle t1(D, A, corner1, randColor());
+    Triangle t2(corner1, E, D, randColor());
+
+    Triangle t3(corner2, B, A, randColor());
+    Triangle t4(A, D, corner2, randColor());
+
+    Triangle t5(F, C, B, randColor());
+    Triangle t6(B, corner2, F, randColor());
+
+    Triangle t7(E, corner1, C, randColor());
+    Triangle t8(C, F, E, randColor());
+
+    Triangle t9(D, E, F, randColor());
+    Triangle tA(F, corner2, D, randColor());
+
+    Triangle tB(corner1, A, B, randColor());
+    Triangle tC(B, C, corner1, randColor());
+
+    scene_objects.push_back(dynamic_cast<Object *>(&t1));
+    scene_objects.push_back(dynamic_cast<Object *>(&t2));
+    scene_objects.push_back(dynamic_cast<Object *>(&t3));
+    scene_objects.push_back(dynamic_cast<Object *>(&t4));
+    scene_objects.push_back(dynamic_cast<Object *>(&t5));
+    scene_objects.push_back(dynamic_cast<Object *>(&t6));
+    scene_objects.push_back(dynamic_cast<Object *>(&t7));
+    scene_objects.push_back(dynamic_cast<Object *>(&t8));
+    scene_objects.push_back(dynamic_cast<Object *>(&t9));
+    scene_objects.push_back(dynamic_cast<Object *>(&tA));
+    scene_objects.push_back(dynamic_cast<Object *>(&tB));
+    scene_objects.push_back(dynamic_cast<Object *>(&tC));
 
     /* // Add spheres of random color, size, and position
     std::vector<Sphere> spheres;
