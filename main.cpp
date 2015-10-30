@@ -24,6 +24,7 @@
 #include "Source.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
+#include "Triangle.hpp"
 
 
 int getForemostObjIndex(const std::vector<double> & intersections) {
@@ -110,6 +111,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
             foremostObjColor.setRed(1);
             foremostObjColor.setGreen(1);
             foremostObjColor.setBlue(1);
+            foremostObjColor.setSpecial(0.2);
         }
 
 
@@ -187,7 +189,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
             bool shadowed = false;
             Vector3D distanceToLight =
                 (*light_it)->getPosition() +
-                (intersectionPoint.invert()); // TODO Check normalize
+                (intersectionPoint.invert());
             float distanceToLightMagnitude = distanceToLight.getMagnitude();
 
             Ray3D shadow_ray(intersectionPoint,
@@ -309,11 +311,12 @@ int main() {
 
     Color white_light(1.0, 1.0, 1.0, 0);
     Color pretty_green(0.5, 1.0, 0.5, 0.3);
-    Color purple(0.5, 0.3, 0.9, 0);
+    Color purple(0.5, 0.3, 0.9, 0.3);
     Color gray(0.5, 0.5, 0.5, 0);
     Color black(0.0, 0.0, 0.0, 0);
     Color maroon(0.5, 0.25, 0.25, 2);
     Color pink(1, 0.078, 0.576, 0);
+    Color orange(0.94, 0.75, 0.31, 0.3);
 
     Vector3D light_position(-7, 5, -10);
     Light scene_light(light_position, white_light);
@@ -324,6 +327,7 @@ int main() {
     Sphere s2(origin + Vector3D(0,0,3), 1, pretty_green);
 
     Plane p(Y, -1, maroon);
+    Triangle t(Vector3D(3, 0, 0), Vector3D(0, 3, 0), Vector3D(0, 0, 3), orange);
 
     std::vector<Object *> scene_objects;
     std::vector<Source *> scene_lights;
@@ -333,6 +337,7 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&s));
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
+    scene_objects.push_back(dynamic_cast<Object *>(&t));
 
     /* // Add spheres of random color, size, and position
     std::vector<Sphere> spheres;

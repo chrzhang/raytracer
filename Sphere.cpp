@@ -37,9 +37,6 @@ Color Sphere::getColor() const {
 Vector3D Sphere::getNormalAt(Vector3D point) const {
 
     // Normal points away from origin of sphere
-
-    // TODO Assert point is on the surface of the sphere
-
     Vector3D normal = (point - center).normalize();
 
     return normal;

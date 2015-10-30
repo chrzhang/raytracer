@@ -64,7 +64,7 @@ double Plane::findIntersection(Ray3D ray) const {
 
     double ldotn = l.dotProduct(n);
 
-    if (ldotn == 0) { // Ray is || to plane
+    if (0 == ldotn) { // Ray is || to plane
 
         return -1; // Never intersects
 
