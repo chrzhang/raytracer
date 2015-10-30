@@ -25,6 +25,7 @@
 #include "Sphere.hpp"
 #include "Plane.hpp"
 #include "Triangle.hpp"
+// #include "Box.hpp"
 
 Color randColor() {
 
@@ -267,45 +268,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
     return finalColor.clip();
 
 }
-/*
-void makeCube(Vector3D corner1, Vector3D corner2, Color color,
-              std::vector<Object *> & scene_objects) {
 
-    double c1x = corner1.getX();
-    double c1y = corner1.getY();
-    double c1z = corner1.getZ();
-
-    double c2x = corner2.getX();
-    double c2y = corner2.getY();
-    double c2z = corner2.getZ();
-
-    Vector3D A (c2x, c1y, c1z);
-    Vector3D B (c2x, c1y, c2z);
-    Vector3D C (c1x, c1y, c2z);
-
-    Vector3D D (c2x, c2y, c1z);
-    Vector3D E (c1x, c2y, c1z);
-    Vector3D F (c1x, c2y, c2z);
-
-    scene_objects.push_back(new Triangle(D, A, corner1, color));
-    scene_objects.push_back(new Triangle(corner1, E, D, color));
-
-    scene_objects.push_back(new Triangle(corner2, B, A, color));
-    scene_objects.push_back(new Triangle(A, D, corner2, color));
-
-    scene_objects.push_back(new Triangle(F, C, B, color));
-    scene_objects.push_back(new Triangle(B, corner2, F, color));
-
-    scene_objects.push_back(new Triangle(E, corner1, C, color));
-    scene_objects.push_back(new Triangle(C, F, E, color));
-
-    scene_objects.push_back(new Triangle(D, E, F, color));
-    scene_objects.push_back(new Triangle(F, corner2, D, color));
-
-    scene_objects.push_back(new Triangle(corner1, A, B, color));
-    scene_objects.push_back(new Triangle(B, C, corner1, color));
-}
-*/
 int main() {
 
     clock_t start, end;
@@ -383,6 +346,9 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
     scene_objects.push_back(dynamic_cast<Object *>(&t));
+
+    //Box c(Vector3D(0, 0, 0), Vector3D(1, 1, 1), orange);
+    //scene_objects.push_back(dynamic_cast<Object *>(&c));
 
     Vector3D corner1 = Vector3D(-1,-1,-1);
     Vector3D corner2 = Vector3D(-5, 1, 1);
