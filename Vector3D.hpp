@@ -4,11 +4,8 @@
 #include <iostream>
 
 class Vector3D {
-
     double x, y, z;
-
     public:
-
         Vector3D();
         Vector3D(double x, double y, double z);
         double getX() const;
@@ -24,7 +21,6 @@ class Vector3D {
         friend Vector3D operator*(const Vector3D & v, double scale);
         friend Vector3D operator*(double scale, const Vector3D & v);
         friend std::ostream & operator<<(std::ostream & os, const Vector3D & v);
-
 };
 
 #endif

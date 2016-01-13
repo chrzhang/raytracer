@@ -1,118 +1,62 @@
 #include "Color.hpp"
 
 Color::Color() {
-
     red = green = blue = special = 0;
-
 }
 
-Color::Color(double red, double green, double blue, double special) {
+Color::Color(double r, double g, double b, double s) :
+    red(r), green(g), blue(b), special(s) {}
 
-    this->red = red;
-    this->green = green;
-    this->blue = blue;
-    this->special = special;
+double Color::getRed() const { return red; }
 
-}
+double Color::getGreen() const { return green; }
 
-double Color::getRed() const {
+double Color::getBlue() const { return blue; }
 
-    return red;
+double Color::getSpecial() const { return special; }
 
-}
+void Color::setRed(double r) { red = r; }
 
-double Color::getGreen() const {
+void Color::setGreen(double g) { green = g; }
 
-    return green;
+void Color::setBlue(double b) { blue = b; }
 
-}
-
-double Color::getBlue() const {
-
-    return blue;
-
-}
-
-double Color::getSpecial() const {
-
-    return special;
-
-}
-
-void Color::setRed(double r) {
-
-    red = r;
-
-}
-
-void Color::setGreen(double g) {
-
-    green = g;
-
-}
-
-void Color::setBlue(double b) {
-
-    blue = b;
-
-}
-
-void Color::setSpecial(double s) {
-
-    special = s;
-
-}
+void Color::setSpecial(double s) { special = s; }
 
 std::ostream & operator<<(std::ostream & os, const Color & c) {
-
     os << "(Red: " << c.red << ", Green: " << c.green << ", Blue: " << c.blue
        << ", Special: " << c.special << ")";
-
     return os;
-
 }
 
-double Color::brightness() const {
-
-    return (red + green + blue) / 3;
-
-}
+double Color::brightness() const { return (red + green + blue) / 3; }
 
 Color Color::colorScalar(double scale) const {
-
     return Color(red * scale, green * scale, blue * scale, special);
-
 }
 
 Color operator+(const Color & lhs, const Color & rhs) {
-
     return Color(lhs.red + rhs.red,
                  lhs.green + rhs.green,
                  lhs.blue + rhs.blue,
                  lhs.special);
-
 }
 
 Color operator*(const Color & lhs, const Color & rhs) {
-
     return Color(lhs.red * rhs.red,
                  lhs.green * rhs.green,
                  lhs.blue * rhs.blue,
                  lhs.special);
-
 }
 
 Color Color::colorAverage(const Color & color) const {
-
     return Color((red + color.red) / 2,
                  (green + color.green) / 2,
                  (blue + color.blue) / 2,
                  special);
-
 }
 
 Color Color::clip() {
-
     double allLight = red + green + blue;
     double excessLight = allLight - 3;
     if (excessLight > 0) {
@@ -138,7 +82,5 @@ Color Color::clip() {
     if (blue < 0) {
         blue = 0;
     }
-
     return Color(red, green, blue, special);
-
 }

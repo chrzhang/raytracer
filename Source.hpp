@@ -6,15 +6,10 @@
 #include "Color.hpp"
 
 class Source {
-
     public:
-
         Source();
-
         virtual Vector3D getPosition() const = 0;
-
         virtual Color getColor() const = 0;
-
 };
 
 #endif

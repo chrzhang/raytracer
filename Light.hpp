@@ -6,17 +6,13 @@
 #include "Color.hpp"
 
 class Light : public Source {
-
     Vector3D position;
     Color color;
-
     public:
-
         Light();
         Light(Vector3D position, Color color);
         virtual Vector3D getPosition() const;
         virtual Color getColor() const;
-
 };
 
 #endif

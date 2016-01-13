@@ -1,45 +1,23 @@
 #include "Plane.hpp"
 
 Plane::Plane() {
-
     normal = Vector3D(1, 0, 0);
     distance = 0.0;
     color = Color(0.5, 0.5, 0.5, 0);
-
 }
 
-Plane::Plane(Vector3D normal, double distance, Color color) {
+Plane::Plane(Vector3D n, double d, Color c)
+    : normal(n), distance(d), color(c) {}
 
-    this->normal = normal;
-    this->distance = distance;
-    this->color = color;
+Vector3D Plane::getNormal() const { return normal; }
 
-}
+double Plane::getDistance() const { return distance; }
 
-Vector3D Plane::getNormal() const {
-
-    return normal;
-
-}
-
-double Plane::getDistance() const {
-
-    return distance;
-
-}
-
-Color Plane::getColor() const {
-
-    return color;
-
-}
+Color Plane::getColor() const { return color; }
 
 Vector3D Plane::getNormalAt(Vector3D point) const {
-
     (void) point;
-
     return normal;
-
 }
 
 // Return distance from ray origin to intersection
@@ -56,27 +34,16 @@ Vector3D Plane::getNormalAt(Vector3D point) const {
  * t = [ (p0 - l0) dot n ] / [ l dot n ]
  */
 double Plane::findIntersection(Ray3D ray) const {
-
     Vector3D rayDirection = ray.getDirection();
-
     Vector3D l = rayDirection;
     Vector3D n = normal;
-
     double ldotn = l.dotProduct(n);
-
     if (0 == ldotn) { // Ray is || to plane
-
         return -1; // Never intersects
-
     } else {
-
         Vector3D p0 = normal * distance;
         Vector3D l0 = ray.getOrigin();
-
         double numerator = (p0 - l0).dotProduct(n);
-
         return numerator / ldotn;
-
     }
-
 }

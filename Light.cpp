@@ -3,27 +3,12 @@
 #include "Color.hpp"
 
 Light::Light() {
-
     position = Vector3D(0,0,0);
     color = Color(1,1,1,0);
-
 }
 
-Light::Light(Vector3D position, Color color) {
+Light::Light(Vector3D p, Color c) : position(p), color(c) {}
 
-    this->position = position;
-    this->color = color;
+Vector3D Light::getPosition() const { return position; }
 
-}
-
-Vector3D Light::getPosition() const {
-
-    return position;
-
-}
-
-Color Light::getColor() const {
-
-    return color;
-
-}
+Color Light::getColor() const { return color; }
