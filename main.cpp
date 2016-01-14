@@ -25,6 +25,7 @@
 #include "Triangle.hpp"
 #include "Box.hpp"
 #include "Helper.hpp"
+#include "Cylinder.hpp"
 
 int getForemostObjIndex(const std::vector<double> & intersections) {
     if (intersections.size() == 0) {
@@ -93,7 +94,8 @@ Color getColorAt(const Vector3D & intersectionPoint,
     if (foremostObjColor.getSpecial() > 0 &&
         foremostObjColor.getSpecial() <= 1) {
         // Reflection from objects with specular intensity
-        double dot1 = foremostObjNormal.dotProduct(intersectionRayDirection.invert());
+        double dot1 = foremostObjNormal.dotProduct(
+                        intersectionRayDirection.invert());
         Vector3D scalar1 = foremostObjNormal * dot1;
         Vector3D add1 = scalar1 + intersectionRayDirection;
         Vector3D scalar2 = add1 * 2;
@@ -205,7 +207,7 @@ int main() {
     double ambientLight = 0.2;
     double accuracy = 0.000001;
     std::vector<RGBType> pixels(n, RGBType());
-    int aadepth = 5; // sqrt of rays per pixel
+    int aadepth = 1; // sqrt of rays per pixel
     //double aathreshold = 0.1;
     size_t pixelindex;
     Vector3D X(1,0,0);
@@ -240,6 +242,7 @@ int main() {
     Vector3D origin(0, 0, 0);
     Sphere s(origin, 1, purple);
     Sphere s2(origin + Vector3D(0,0,3), 1, pretty_green);
+    Cylinder c(0.3, Color(1, 0.078, 0.576, 0.3));
     Plane p(Y, -1, maroon);
     Triangle t(Vector3D(3, 0, 0), Vector3D(0, 3, 0), Vector3D(0, 0, 3), orange);
     std::vector<Object *> scene_objects;
@@ -247,6 +250,7 @@ int main() {
     scene_lights.push_back(dynamic_cast<Source *>(&scene_light));
     scene_objects.push_back(dynamic_cast<Object *>(&s));
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
+    scene_objects.push_back(dynamic_cast<Object *>(&c));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
     scene_objects.push_back(dynamic_cast<Object *>(&t));
     //Box c(Vector3D(0, 0, 0), Vector3D(1, 1, 1), orange);

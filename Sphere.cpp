@@ -1,4 +1,5 @@
 #include "Sphere.hpp"
+#include <assert.h>
 
 Sphere::Sphere() {
     center = Vector3D(0, 0, 0);
@@ -22,25 +23,25 @@ Vector3D Sphere::getNormalAt(Vector3D point) const {
 }
 
 double Sphere::findIntersection(Ray3D ray) const {
+    // To find intersection between sphere and arbitrary ray, substitute the ray
+    // equation into the sphere equation
+    // Ray: x(t) = x_origin + tx_d (where x_d is the ray offset)
+    // Sphere: x^2 + y^2 + z^2 = r^2
+    // So substituting:
+    // (x_origin + tx_d)^2 + (y_origin + ty_d)^2 + (z_origin + tz_d)^2 = r^2
+    // We get: (Note the quadratic formula nature)
+    // t^2(x_d^2 + y_d^2 + z_d^2) +
+    // t(2x_origin*x_d + 2y_origin*y_d + 2z_origin*z_d) +
+    // (x_origin^2 + y_origin^2 + z_origin^2 - r^2) = 0
     Vector3D rayOrigin = ray.getOrigin();
-    double rayOriginX = rayOrigin.getX();
-    double rayOriginY = rayOrigin.getY();
-    double rayOriginZ = rayOrigin.getZ();
     Vector3D rayDirection = ray.getDirection();
-    double rayDirectionX = rayDirection.getX();
-    double rayDirectionY = rayDirection.getY();
-    double rayDirectionZ = rayDirection.getZ();
-    Vector3D sphereCenter = center;
-    double sphereCenterX = sphereCenter.getX();
-    double sphereCenterY = sphereCenter.getY();
-    double sphereCenterZ = sphereCenter.getZ();
-    double a = 1;
-    double b = (2 * (rayOriginX - sphereCenterX) * rayDirectionX) +
-               (2 * (rayOriginY - sphereCenterY) * rayDirectionY) +
-               (2 * (rayOriginZ - sphereCenterZ) * rayDirectionZ);
-    double c = pow(rayOriginX - sphereCenterX, 2) +
-               pow(rayOriginY - sphereCenterY, 2) +
-               pow(rayOriginZ - sphereCenterZ, 2) -
+    double a = 1; // Because our Ray3D's are normalized
+    double b = (2 * (rayOrigin.getX() - center.getX()) * rayDirection.getX()) +
+               (2 * (rayOrigin.getY() - center.getY()) * rayDirection.getY()) +
+               (2 * (rayOrigin.getZ() - center.getZ()) * rayDirection.getZ());
+    double c = pow(rayOrigin.getX() - center.getX(), 2) +
+               pow(rayOrigin.getY() - center.getY(), 2) +
+               pow(rayOrigin.getZ() - center.getZ(), 2) -
                (radius * radius);
     double discriminant = b * b - 4 * a * c;
     if (discriminant > 0) {
