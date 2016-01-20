@@ -11,7 +11,6 @@ class Cylinder : public Object { // TODO use opt args for closed cylinder
     double radius;
     Color color;
     public:
-        Cylinder();
         Cylinder(double radius, Color color);
         double getRadius() const;
         virtual Color getColor() const;

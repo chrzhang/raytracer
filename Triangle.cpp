@@ -1,22 +1,8 @@
 #include "Triangle.hpp"
 
-Triangle::Triangle() {
-    epA = Vector3D(1, 0, 0);
-    epB = Vector3D(0, 1, 0);
-    epC = Vector3D(0, 0, 1);
-    normal = (epC - epA).crossProduct(epB - epA).normalize();
-    distance = normal.dotProduct(epA);
-    color = Color(0.5, 0.5, 0.5, 0);
-}
-
-Triangle::Triangle(const Vector3D & epA,
-                   const Vector3D & epB,
-                   const Vector3D & epC,
-                   Color color) {
-    this->epA = epA;
-    this->epB = epB;
-    this->epC = epC;
-    this->color = color;
+Triangle::Triangle(const Vector3D & epA, const Vector3D & epB,
+                   const Vector3D & epC, Color color)
+                    : epA(epA), epB(epB), epC(epC), color(color) {
     normal = (epC - epA).crossProduct(epB - epA).normalize();
     distance = normal.dotProduct(epA);
 }

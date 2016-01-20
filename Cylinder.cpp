@@ -1,10 +1,5 @@
 #include "Cylinder.hpp"
 
-Cylinder::Cylinder() {
-    radius = 1.0;
-    color = Color(0.5, 0.5, 0.5, 0);
-}
-
 Cylinder::Cylinder(double r, Color col) : radius(r), color(col) {}
 
 double Cylinder::getRadius() const { return radius; }

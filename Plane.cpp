@@ -1,11 +1,5 @@
 #include "Plane.hpp"
 
-Plane::Plane() {
-    normal = Vector3D(1, 0, 0);
-    distance = 0.0;
-    color = Color(0.5, 0.5, 0.5, 0);
-}
-
 Plane::Plane(Vector3D n, double d, Color c)
     : normal(n), distance(d), color(c) {}
 

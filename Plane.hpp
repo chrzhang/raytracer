@@ -13,7 +13,6 @@ class Plane : public Object {
     double distance;
     Color color;
     public:
-        Plane();
         Plane(Vector3D normal, double distance, Color color);
         Vector3D getNormal() const;
         double getDistance() const;

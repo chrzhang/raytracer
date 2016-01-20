@@ -1,12 +1,6 @@
 #include "Box.hpp"
 #include "assert.h"
 
-Box::Box() {
-    min = Vector3D(0, 0, 0);
-    max = Vector3D(1, 1, 1);
-    color = Color(0.5, 0.5, 0.5, 0);
-}
-
 Box::Box(const Vector3D & min, const Vector3D & max, Color color)
     : min(min), max(max), color(color) {}
 

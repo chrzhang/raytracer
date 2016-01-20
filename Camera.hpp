@@ -10,7 +10,6 @@ class Camera {
     Vector3D right;
     Vector3D down;
     public:
-        Camera();
         Camera(Vector3D position, Vector3D direction, Vector3D right,
                Vector3D down);
         Vector3D getPosition() const;

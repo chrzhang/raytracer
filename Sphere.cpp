@@ -1,12 +1,6 @@
 #include "Sphere.hpp"
 #include <assert.h>
 
-Sphere::Sphere() {
-    center = Vector3D(0, 0, 0);
-    radius = 1.0;
-    color = Color(0.5, 0.5, 0.5, 0);
-}
-
 Sphere::Sphere(Vector3D cen, double r, Color col)
     : center(cen), radius(r), color(col) {}
 

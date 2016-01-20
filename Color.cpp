@@ -1,9 +1,5 @@
 #include "Color.hpp"
 
-Color::Color() {
-    red = green = blue = special = 0;
-}
-
 Color::Color(double r, double g, double b, double s) :
     red(r), green(g), blue(b), special(s) {}
 

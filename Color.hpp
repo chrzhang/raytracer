@@ -6,7 +6,6 @@
 class Color {
     double red, green, blue, special;
     public:
-        Color();
         Color(double red, double green, double blue, double special);
         double getRed() const;
         double getGreen() const;

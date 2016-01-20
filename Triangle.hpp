@@ -12,7 +12,6 @@ class Triangle : public Object {
     double distance;
     Color color;
     public:
-        Triangle();
         Triangle(const Vector3D & epA,
                  const Vector3D & epB,
                  const Vector3D & epC,

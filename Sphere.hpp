@@ -12,7 +12,6 @@ class Sphere : public Object {
     double radius;
     Color color;
     public:
-        Sphere();
         Sphere(Vector3D center, double radius, Color color);
         Vector3D getCenter() const;
         double getRadius() const;
