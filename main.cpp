@@ -13,6 +13,7 @@
 #include <assert.h>
 #include "RGBType.hpp"
 #include "PPMWriter.hpp"
+#include "PLYReader.hpp"
 #include "Vector3D.hpp"
 #include "Ray3D.hpp"
 #include "Camera.hpp"
@@ -26,6 +27,7 @@
 #include "Box.hpp"
 #include "Helper.hpp"
 #include "Cylinder.hpp"
+#include "BVH.hpp"
 
 int getForemostObjIndex(const std::vector<double> & intersections) {
     if (intersections.size() == 0) {
@@ -293,6 +295,11 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&tA));
     scene_objects.push_back(dynamic_cast<Object *>(&tB));
     scene_objects.push_back(dynamic_cast<Object *>(&tC));
+    scene_objects.clear();
+    scene_objects.push_back(dynamic_cast<Object *>(&p));
+    std::vector<Object *> objectsFromPly = PLYReader::readFromPly("sceneObjects.ply");
+    scene_objects.insert(scene_objects.end(), objectsFromPly.begin(),
+                         objectsFromPly.end());
     /* // Add spheres of random color, size, and position
     std::vector<Sphere> spheres;
     for (int i = 0; i < 100; ++i) {
