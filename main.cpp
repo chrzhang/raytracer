@@ -202,8 +202,8 @@ int main() {
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 800;
-    size_t height = 600;
+    size_t width = 1920;
+    size_t height = 1080;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -217,7 +217,7 @@ int main() {
     Vector3D Z(0,0,1);
     Vector3D look_at(0,0,0);
     std::cout << "look_at" << look_at << std::endl;
-    Vector3D campos(3,1.5,-4);
+    Vector3D campos(30,15,4);
     std::cout << "campos" << campos << std::endl;
     Vector3D diff_btw(campos.getX() - look_at.getX(),
                       campos.getY() - look_at.getY(),
@@ -238,11 +238,12 @@ int main() {
     Color maroon(0.5, 0.25, 0.25, 2);
     Color pink(1, 0.078, 0.576, 0);
     Color orange(0.94, 0.75, 0.31, 0.3);
-    Vector3D light_position(-7, 5, -10);
-    Light scene_light(light_position, white_light);
+    Vector3D light_position(3.5, 2.5, -5);
+    Light scene_light(5 * light_position, white_light);
+    Light scene_light2(.8 * campos, white_light);
     // Objects in scene
     Vector3D origin(0, 0, 0);
-    Sphere s(origin, 1, purple);
+    Sphere * s = new Sphere(origin, 1, purple);
     Sphere s2(origin + Vector3D(0,0,3), 1, pretty_green);
     Cylinder c(0.3, Color(1, 0.078, 0.576, 0.3));
     Plane p(Y, -1, maroon);
@@ -250,7 +251,8 @@ int main() {
     std::vector<Object *> scene_objects;
     std::vector<Source *> scene_lights;
     scene_lights.push_back(dynamic_cast<Source *>(&scene_light));
-    scene_objects.push_back(dynamic_cast<Object *>(&s));
+    scene_lights.push_back(dynamic_cast<Source *>(&scene_light2));
+    scene_objects.push_back(dynamic_cast<Object *>(s));
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&c));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
@@ -296,10 +298,7 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&tB));
     scene_objects.push_back(dynamic_cast<Object *>(&tC));
     scene_objects.clear();
-    scene_objects.push_back(dynamic_cast<Object *>(&p));
-    std::vector<Object *> objectsFromPly = PLYReader::readFromPly("sceneObjects.ply");
-    scene_objects.insert(scene_objects.end(), objectsFromPly.begin(),
-                         objectsFromPly.end());
+    PLYReader::readFromPly(scene_objects, "sceneObjects.ply");
     /* // Add spheres of random color, size, and position
     std::vector<Sphere> spheres;
     for (int i = 0; i < 100; ++i) {
@@ -318,6 +317,7 @@ int main() {
     int aa_index;
     double xamnt, yamnt;
     for (size_t x = 0; x < width; ++x) {
+        std::cout << "x = " << x << std::endl;
         for (size_t y = 0; y < height; ++y) {
             // For every pixel...
             pixelindex = y * width + x;

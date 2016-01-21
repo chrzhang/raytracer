@@ -13,7 +13,7 @@ Color Triangle::getColor() const { return color; }
 
 double Triangle::getDistance() const { return distance; }
 
-Vector3D Triangle::getNormalAt(Vector3D) const { return normal; }
+Vector3D Triangle::getNormalAt(Vector3D) const { return normal.invert(); }
 
 // Return distance from ray origin to intersection
 // See comments for variables and the equations in Plane.cpp's findIntersection
