@@ -7,7 +7,9 @@
 
 class PLYReader {
     public:
-        static std::vector<Object *> readFromPly(const std::string & filename);
+        static void readFromPly(
+            std::vector<Object *> & scene_objects,
+            const std::string & filename);
 };
 
 #endif
