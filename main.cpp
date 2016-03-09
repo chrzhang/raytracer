@@ -7,10 +7,12 @@
 #include <limits>
 #include <cstdlib>
 #include <ctime>
+#include <cfloat>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <assert.h>
+
 #include "RGBType.hpp"
 #include "PPMWriter.hpp"
 #include "PLYReader.hpp"
@@ -29,37 +31,19 @@
 #include "Cylinder.hpp"
 #include "BVH.hpp"
 
+// Get index of object that is closest in distance (stored in intersections)
 int getForemostObjIndex(const std::vector<double> & intersections) {
-    if (intersections.size() == 0) {
-        return -1;
-    } else if (intersections.size() == 1) {
-        if (0 < *intersections.begin()) {
-            return 0;
-        } else { // Behind or out of sight from ray
-            return -1;
-        }
-    } else { // Multiple intersections
-        double max = *intersections.begin();
-        for (std::vector<double>::const_iterator it = intersections.begin();
-             it != intersections.end(); ++it) {
-            if (*it > max) {
-                max = *it;
-            }
-        }
-        if (max > 0) {
-            // Find the smallest positive number
-            int index_of_minimum_value = -1;
-            for (size_t index = 0; index < intersections.size(); ++index) {
-                if (intersections[index] > 0 && intersections[index] <= max) {
-                    max = intersections[index];
-                    index_of_minimum_value = index;
-                }
-            }
-            return index_of_minimum_value;
-        } else {
-            return -1;
+    // Multiple intersections find the closest (smallest pos. distance)
+    double smallestPosDistance = DBL_MAX;
+    int indexOfSmallestPosDistance = -1;
+    for (size_t i = 0; i < intersections.size(); ++i) {
+        if (intersections[i] > 0 &&
+            intersections[i] < smallestPosDistance) {
+            smallestPosDistance = intersections[i];
+            indexOfSmallestPosDistance = i;
         }
     }
+    return indexOfSmallestPosDistance;
 }
 
 Color getColorAt(const Vector3D & intersectionPoint,
@@ -202,8 +186,8 @@ int main() {
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 1920;
-    size_t height = 1080;
+    size_t width = 500;
+    size_t height = 350;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -217,7 +201,8 @@ int main() {
     Vector3D Z(0,0,1);
     Vector3D look_at(0,0,0);
     std::cout << "look_at" << look_at << std::endl;
-    Vector3D campos(30,15,4);
+    Vector3D campos(3,2,4);
+    campos = 6 * campos;
     std::cout << "campos" << campos << std::endl;
     Vector3D diff_btw(campos.getX() - look_at.getX(),
                       campos.getY() - look_at.getY(),
@@ -297,7 +282,7 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&tA));
     scene_objects.push_back(dynamic_cast<Object *>(&tB));
     scene_objects.push_back(dynamic_cast<Object *>(&tC));
-    scene_objects.clear();
+    //scene_objects.clear();
     PLYReader::readFromPly(scene_objects, "sceneObjects.ply");
     /* // Add spheres of random color, size, and position
     std::vector<Sphere> spheres;
@@ -317,7 +302,7 @@ int main() {
     int aa_index;
     double xamnt, yamnt;
     for (size_t x = 0; x < width; ++x) {
-        std::cout << "x = " << x << std::endl;
+        std::cout << "x = " << x << "\r" << std::flush;
         for (size_t y = 0; y < height; ++y) {
             // For every pixel...
             pixelindex = y * width + x;
