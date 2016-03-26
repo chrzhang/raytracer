@@ -10,13 +10,13 @@ double Sphere::getRadius() const { return radius; }
 
 Color Sphere::getColor() const { return color; }
 
-Vector3D Sphere::getNormalAt(Vector3D point) const {
+Vector3D Sphere::getNormalAt(const Vector3D & point) const {
     // Normal points away from origin of sphere
     Vector3D normal = (point - center).normalize();
     return normal;
 }
 
-double Sphere::findIntersection(Ray3D ray) const {
+double Sphere::findIntersection(const Ray3D & ray) const {
     // To find intersection between sphere and arbitrary ray, substitute the ray
     // equation into the sphere equation
     // Ray: x(t) = x_origin + tx_d (where x_d is the ray offset)

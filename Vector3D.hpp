@@ -7,20 +7,22 @@ class Vector3D {
     double x, y, z;
     public:
         Vector3D();
-        Vector3D(double x, double y, double z);
+        Vector3D(double, double, double);
         double getX() const;
         double getY() const;
         double getZ() const;
         double getMagnitude() const;
         Vector3D normalize() const;
         Vector3D invert() const;
-        double dotProduct(const Vector3D & v) const;
-        Vector3D crossProduct(const Vector3D & v) const;
-        friend Vector3D operator+(const Vector3D & lhs, const Vector3D & rhs);
-        friend Vector3D operator-(const Vector3D & lhs, const Vector3D & rhs);
-        friend Vector3D operator*(const Vector3D & v, double scale);
-        friend Vector3D operator*(double scale, const Vector3D & v);
-        friend std::ostream & operator<<(std::ostream & os, const Vector3D & v);
+        double dotProduct(const Vector3D &) const;
+        Vector3D crossProduct(const Vector3D &) const;
+        friend Vector3D operator+(const Vector3D &, const Vector3D &);
+        friend Vector3D operator-(const Vector3D &, const Vector3D &);
+        friend Vector3D operator*(const Vector3D &, double);
+        friend Vector3D operator*(double, const Vector3D &);
+        friend Vector3D operator/(double, const Vector3D &);
+        friend Vector3D operator/(const Vector3D &, double);
+        friend std::ostream & operator<<(std::ostream &, const Vector3D &);
 };
 
 #endif

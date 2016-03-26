@@ -14,8 +14,8 @@ class Cylinder : public Object { // TODO use opt args for closed cylinder
         Cylinder(double radius, Color color);
         double getRadius() const;
         virtual Color getColor() const;
-        virtual Vector3D getNormalAt(Vector3D point) const;
-        virtual double findIntersection(Ray3D ray) const;
+        virtual Vector3D getNormalAt(const Vector3D & point) const;
+        virtual double findIntersection(const Ray3D & ray) const;
 };
 
 #endif

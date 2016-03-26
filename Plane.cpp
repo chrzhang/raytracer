@@ -9,8 +9,7 @@ double Plane::getDistance() const { return distance; }
 
 Color Plane::getColor() const { return color; }
 
-Vector3D Plane::getNormalAt(Vector3D point) const {
-    (void) point;
+Vector3D Plane::getNormalAt(const Vector3D &) const {
     return normal;
 }
 
@@ -27,7 +26,7 @@ Vector3D Plane::getNormalAt(Vector3D point) const {
  * Solving for t by substituting p gives that
  * t = [ (p0 - l0) dot n ] / [ l dot n ]
  */
-double Plane::findIntersection(Ray3D ray) const {
+double Plane::findIntersection(const Ray3D & ray) const {
     Vector3D rayDirection = ray.getDirection();
     Vector3D l = rayDirection;
     Vector3D n = normal;

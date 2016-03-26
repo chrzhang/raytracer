@@ -6,13 +6,13 @@ double Cylinder::getRadius() const { return radius; }
 
 Color Cylinder::getColor() const { return color; }
 
-Vector3D Cylinder::getNormalAt(Vector3D point) const {
+Vector3D Cylinder::getNormalAt(const Vector3D & point) const {
     // When along an axis, that axis has values, everything else is 0
     Vector3D normal = (point - Vector3D(0, 0, point.getZ())).normalize();
     return normal;
 }
 
-double Cylinder::findIntersection(Ray3D ray) const {
+double Cylinder::findIntersection(const Ray3D & ray) const {
     Vector3D rayOrigin = ray.getOrigin();
     Vector3D rayDirection = ray.getDirection();
     double a = pow(rayDirection.getX(), 2) +

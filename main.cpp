@@ -26,7 +26,6 @@
 #include "Sphere.hpp"
 #include "Plane.hpp"
 #include "Triangle.hpp"
-#include "Box.hpp"
 #include "Helper.hpp"
 #include "Cylinder.hpp"
 #include "BVH.hpp"
@@ -52,7 +51,10 @@ Color getColorAt(const Vector3D & intersectionPoint,
                  int foremostObjIndex,
                  const std::vector<Source *> & scene_lights,
                  double accuracy,
-                 double ambientLight) {
+                 double ambientLight,
+                 unsigned & raysFired,
+                 unsigned & objsQueried) {
+    ++raysFired;
     // Get color of first object encountered
     Color foremostObjColor = (scene_objects[foremostObjIndex])->getColor();
     if (foremostObjColor.getSpecial() == 2) {
@@ -91,6 +93,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
         // Find first intersection of ray
         std::vector<double> reflection_intersections;
         for (size_t i = 0; i < scene_objects.size(); ++i) {
+            ++objsQueried;
             reflection_intersections.push_back(
                 scene_objects[i]->findIntersection(reflection_ray));
         }
@@ -108,14 +111,14 @@ Color getColorAt(const Vector3D & intersectionPoint,
                     getColorAt(reflectionIntersectionPosition,
                                reflectionIntersectionDirection, scene_objects,
                                indexOfForemostReflectedObject, scene_lights,
-                               accuracy, ambientLight);
+                               accuracy, ambientLight, raysFired, objsQueried);
                 finalColor = finalColor +
                               reflection_intersection_color.colorScalar(
                                 foremostObjColor.getSpecial());
             }
         }
     }
-    // Loop through lights
+    // Loop through lights to see if shadows should affect
     for (auto light_it = scene_lights.begin(); light_it != scene_lights.end();
          ++light_it) {
         // Finds direction to go from point of intersection to the light
@@ -137,6 +140,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
             for (auto obj_it = scene_objects.begin();
                  obj_it != scene_objects.end() && !shadowed;
                  ++obj_it) {
+                ++objsQueried;
                 // Check if there's any intersections between any object and
                 // the ray from the first intersection to light source
                 // If so, there's an obstacle and thus a shadow
@@ -152,7 +156,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
                     break;
                 }
             }
-            if (!shadowed) {
+            if (!shadowed) { // Affect with light
                 finalColor = finalColor + (foremostObjColor *
                     (*light_it)->getColor()).colorScalar(cosine_angle);
                 if (finalColor.getSpecial() > 0 &&
@@ -183,11 +187,13 @@ Color getColorAt(const Vector3D & intersectionPoint,
 
 int main() {
     clock_t start, end;
+    unsigned raysFired = 0;
+    unsigned objsQueried = 0;
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 500;
-    size_t height = 350;
+    size_t width = 200;
+    size_t height = 180;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -242,8 +248,6 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&c));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
     scene_objects.push_back(dynamic_cast<Object *>(&t));
-    //Box c(Vector3D(0, 0, 0), Vector3D(1, 1, 1), orange);
-    //scene_objects.push_back(dynamic_cast<Object *>(&c));
     Vector3D corner1 = Vector3D(-1,-1,-1);
     Vector3D corner2 = Vector3D(-5, 1, 1);
     double c1x = corner1.getX();
@@ -282,7 +286,7 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&tA));
     scene_objects.push_back(dynamic_cast<Object *>(&tB));
     scene_objects.push_back(dynamic_cast<Object *>(&tC));
-    //scene_objects.clear();
+    scene_objects.clear();
     PLYReader::readFromPly(scene_objects, "sceneObjects.ply");
     /* // Add spheres of random color, size, and position
     std::vector<Sphere> spheres;
@@ -312,6 +316,7 @@ int main() {
             // Shoot additional rays for antialiasing per pixel
             for (int aax = 0; aax < aadepth; ++aax) {
                 for (int aay = 0; aay < aadepth; ++aay) {
+                    ++raysFired;
                     aa_index = aay * aadepth + aax;
                     if (aadepth == 1) {
                         // No anti-aliasing, make normal perspective illusion
@@ -359,6 +364,7 @@ int main() {
                     for (std::vector<Object *>::const_iterator it =
                             scene_objects.begin();
                          it != scene_objects.end(); ++it) {
+                        ++objsQueried;
                         intersections.push_back((*it)->findIntersection(cam_ray));
                     }
                     // Index of the least positive intersection is the closest object
@@ -381,7 +387,9 @@ int main() {
                                                  foremostObjIndex,
                                                  scene_lights,
                                                  accuracy,
-                                                 ambientLight);
+                                                 ambientLight,
+                                                 raysFired,
+                                                 objsQueried);
                             // Get color intersection
                             tempRed[aa_index] = c.getRed();
                             tempGreen[aa_index] = c.getGreen();
@@ -410,6 +418,8 @@ int main() {
     PPMWriter::saveppm("scene.ppm", width, height, pixels);
     end = clock();
     float elapsed = ((float) end - (float) start) / CLOCKS_PER_SEC;
-    std::cout << elapsed << " seconds." << std::endl;
+    std::cout << elapsed << " seconds.\n";
+    std::cout << raysFired << " rays fired.\n";
+    std::cout << objsQueried << " objs queried.\n";
     return 0;
 }

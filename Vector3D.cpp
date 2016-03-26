@@ -63,6 +63,18 @@ Vector3D operator*(double scale, const Vector3D & v) {
     return v * scale;
 }
 
+Vector3D operator/(double scale, const Vector3D & v) {
+    return Vector3D(scale / v.getX(),
+                    scale / v.getY(),
+                    scale / v.getZ());
+};
+
+Vector3D operator/(const Vector3D & v, double scale) {
+    return Vector3D(v.getX() / scale,
+                    v.getY() / scale,
+                    v.getZ() / scale);
+}
+
 std::ostream & operator<<(std::ostream & os, const Vector3D & v) {
     os << "(" << v.getX() << "," << v.getY() << "," << v.getZ() << ")";
     return os;

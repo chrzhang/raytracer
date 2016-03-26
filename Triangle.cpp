@@ -1,10 +1,17 @@
 #include "Triangle.hpp"
+#include <algorithm>
 
 Triangle::Triangle(const Vector3D & epA, const Vector3D & epB,
                    const Vector3D & epC, Color color)
                     : epA(epA), epB(epB), epC(epC), color(color) {
     normal = (epC - epA).crossProduct(epB - epA).normalize();
     distance = normal.dotProduct(epA);
+    setBBox(std::min({epA.getX(), epB.getX(), epC.getX()}),
+            std::min({epA.getY(), epB.getY(), epC.getY()}),
+            std::min({epA.getZ(), epB.getZ(), epC.getZ()}),
+            std::max({epA.getX(), epB.getX(), epC.getX()}),
+            std::max({epA.getY(), epB.getY(), epC.getY()}),
+            std::max({epA.getZ(), epB.getZ(), epC.getZ()}));
 }
 
 Vector3D Triangle::getNormal() const { return normal; }
@@ -13,11 +20,24 @@ Color Triangle::getColor() const { return color; }
 
 double Triangle::getDistance() const { return distance; }
 
-Vector3D Triangle::getNormalAt(Vector3D) const { return normal.invert(); }
+Vector3D Triangle::getNormalAt(const Vector3D &) const {
+    return normal.invert();
+}
+
+void Triangle::setBBox(double x_min, double y_min, double z_min,
+                       double x_max, double y_max, double z_max) {
+    Object::setBBox(x_min, y_min, z_min, x_max, y_max, z_max);
+}
+
+BoundingBox Triangle::getBBox() const {
+    return Object::getBBox();
+}
 
 // Return distance from ray origin to intersection
 // See comments for variables and the equations in Plane.cpp's findIntersection
-double Triangle::findIntersection(Ray3D ray) const {
+double Triangle::findIntersection(const Ray3D & ray) const {
+    // See if the ray intersects the bounding box
+    if (!Object::intersectsBBox(ray)) { return -1; }
     // First check if the ray intersects with the plane (use same calculations)
     Vector3D rayDirection = ray.getDirection();
     Vector3D rayOrigin = ray.getOrigin();

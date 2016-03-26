@@ -4,7 +4,7 @@
 #include "Vector3D.hpp"
 
 class Ray3D {
-    Vector3D origin, direction;
+    Vector3D origin, direction, invDirection;
     public:
         Ray3D(Vector3D origin, Vector3D direction);
         Vector3D getOrigin() const;
