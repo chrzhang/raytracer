@@ -12,5 +12,5 @@ void Object::setBBox(double x_min, double y_min, double z_min,
 }
 
 bool Object::intersectsBBox(const Ray3D & ray) const {
-    return true;
+    return bbox.intersects(ray);
 }

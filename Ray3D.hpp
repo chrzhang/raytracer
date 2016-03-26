@@ -9,6 +9,7 @@ class Ray3D {
         Ray3D(Vector3D origin, Vector3D direction);
         Vector3D getOrigin() const;
         Vector3D getDirection() const;
+        Vector3D getInvDirection() const;
 };
 
 #endif
