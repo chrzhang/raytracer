@@ -21,6 +21,7 @@ class Triangle : public Object {
         double getDistance() const;
         virtual Color getColor() const;
         virtual Vector3D getNormalAt(const Vector3D &) const;
+        virtual Vector3D getCentroid() const;
         virtual double findIntersection(const Ray3D &) const;
         virtual BoundingBox getBBox() const;
         virtual void setBBox(double, double, double, double, double, double);

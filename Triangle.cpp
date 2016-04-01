@@ -16,6 +16,12 @@ Triangle::Triangle(const Vector3D & epA, const Vector3D & epB,
 
 Vector3D Triangle::getNormal() const { return normal; }
 
+Vector3D Triangle::getCentroid() const {
+    return Vector3D((epA.getX() + epB.getX() + epC.getX()) / 3,
+                    (epA.getY() + epB.getY() + epC.getY()) / 3,
+                    (epA.getZ() + epB.getZ() + epC.getZ()) / 3);
+}
+
 Color Triangle::getColor() const { return color; }
 
 double Triangle::getDistance() const { return distance; }

@@ -1,5 +1,6 @@
 #include "BoundingBox.hpp"
 #include "Ray3D.hpp"
+#include <cassert>
 
 BoundingBox::BoundingBox() {
     x_min = y_min = z_min = x_max = y_max = z_max = 0;
@@ -7,6 +8,7 @@ BoundingBox::BoundingBox() {
 
 void BoundingBox::set(double xn, double yn, double zn, double xx, double yx,
                       double zx) {
+    assert(xn <= xx && yn <= yx && zn <= zx);
     x_min = xn;
     y_min = yn;
     z_min = zn;
@@ -35,4 +37,11 @@ bool BoundingBox::intersects(const Ray3D & ray) const {
     if (tz_min > tz_max) { std::swap(tz_min, tz_max); }
     if (tx_min > tz_max || tz_min > tx_max) { return false; }
     return true;
+}
+
+std::ostream & operator<<(std::ostream & os, const BoundingBox & bbox) {
+    os << "(" << bbox.x_min << "," << bbox.y_min << "," << bbox.z_min
+       << ") -> (" << bbox.x_max << "," << bbox.y_max << "," << bbox.z_max
+       << ")\n";
+   return os;
 }

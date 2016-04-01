@@ -1,15 +1,20 @@
 #ifndef __BVH__
 #define __BVH__
 
-#include "BVHNode.hpp"
+#include "BoundingBox.hpp"
 #include "Object.hpp"
+#include "Axis.hpp"
 #include <vector>
 
 class BVH {
-    BVHNode * root;
+    BoundingBox bbox;
+    BVH * left;
+    BVH * right;
+    std::vector<Object *> objsIncluded;
     public:
-        BVH();
-        void construct(const std::vector<Object *> & primitives);
+        BVH(const std::vector<Object *> & sceneObjs, const Axis & axis);
+        void print() const;
+        ~BVH();
 };
 
 #endif

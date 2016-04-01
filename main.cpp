@@ -192,8 +192,8 @@ int main() {
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 200;
-    size_t height = 180;
+    size_t width = 20;
+    size_t height = 18;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -234,7 +234,7 @@ int main() {
     Light scene_light2(.8 * campos, white_light);
     // Objects in scene
     Vector3D origin(0, 0, 0);
-    Sphere * s = new Sphere(origin, 1, purple);
+    Sphere s (origin, 1, purple);
     Sphere s2(origin + Vector3D(0,0,3), 1, pretty_green);
     Cylinder c(0.3, Color(1, 0.078, 0.576, 0.3));
     Plane p(Y, -1, maroon);
@@ -243,7 +243,7 @@ int main() {
     std::vector<Source *> scene_lights;
     scene_lights.push_back(dynamic_cast<Source *>(&scene_light));
     scene_lights.push_back(dynamic_cast<Source *>(&scene_light2));
-    scene_objects.push_back(dynamic_cast<Object *>(s));
+    scene_objects.push_back(dynamic_cast<Object *>(&s));
     scene_objects.push_back(dynamic_cast<Object *>(&s2));
     scene_objects.push_back(dynamic_cast<Object *>(&c));
     scene_objects.push_back(dynamic_cast<Object *>(&p));
@@ -303,6 +303,8 @@ int main() {
         scene_objects.push_back(dynamic_cast<Object *>(&(*it)));
     }
     */
+    BVH * bounding_volume_hierarchy = new BVH(scene_objects, Axis('x'));
+    delete bounding_volume_hierarchy;
     int aa_index;
     double xamnt, yamnt;
     for (size_t x = 0; x < width; ++x) {
