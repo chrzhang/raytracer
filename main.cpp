@@ -29,26 +29,13 @@
 #include "Helper.hpp"
 #include "Cylinder.hpp"
 #include "BVH.hpp"
-
-// Get index of object that is closest in distance (stored in intersections)
-int getForemostObjIndex(const std::vector<double> & intersections) {
-    // Multiple intersections find the closest (smallest pos. distance)
-    double smallestPosDistance = DBL_MAX;
-    int indexOfSmallestPosDistance = -1;
-    for (size_t i = 0; i < intersections.size(); ++i) {
-        if (intersections[i] > 0 &&
-            intersections[i] < smallestPosDistance) {
-            smallestPosDistance = intersections[i];
-            indexOfSmallestPosDistance = i;
-        }
-    }
-    return indexOfSmallestPosDistance;
-}
+#include "Intersection.hpp"
 
 Color getColorAt(const Vector3D & intersectionPoint,
                  const Vector3D & intersectionRayDirection,
                  const std::vector<Object *> & scene_objects,
-                 int foremostObjIndex,
+                 const BVH * bounding_volume_hierarchy,
+                 Object * objPtr,
                  const std::vector<Source *> & scene_lights,
                  double accuracy,
                  double ambientLight,
@@ -56,7 +43,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
                  unsigned & objsQueried) {
     ++raysFired;
     // Get color of first object encountered
-    Color foremostObjColor = (scene_objects[foremostObjIndex])->getColor();
+    Color foremostObjColor = objPtr->getColor();
     if (foremostObjColor.getSpecial() == 2) {
         // Checkered / Tile Floor Pattern
         int square = (int) floor(intersectionPoint.getX()) +
@@ -76,7 +63,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
     }
     // Finds normal at the point of intersection
     Vector3D foremostObjNormal =
-        (scene_objects[foremostObjIndex])->getNormalAt(intersectionPoint);
+        objPtr->getNormalAt(intersectionPoint);
     Color finalColor = foremostObjColor.colorScalar(ambientLight);
     // Handle reflections by checking for light bouncing off intersection
     if (foremostObjColor.getSpecial() > 0 &&
@@ -91,26 +78,26 @@ Color getColorAt(const Vector3D & intersectionPoint,
         Vector3D reflection_direction = add2.normalize();
         Ray3D reflection_ray(intersectionPoint, reflection_direction);
         // Find first intersection of ray
-        std::vector<double> reflection_intersections;
-        for (size_t i = 0; i < scene_objects.size(); ++i) {
-            ++objsQueried;
-            reflection_intersections.push_back(
-                scene_objects[i]->findIntersection(reflection_ray));
-        }
-        int indexOfForemostReflectedObject =
-            getForemostObjIndex(reflection_intersections);
-        if (indexOfForemostReflectedObject != -1) {
+        /* *** Without BVH
+        Intersection intersection = getIntersection(scene_objects,
+                                                    reflection_ray);
+        */
+        Intersection intersection =
+            bounding_volume_hierarchy->findIntersection(reflection_ray);
+        Object * foremostReflectedObjectPtr = intersection.objPtr;
+        double minDistance = intersection.distance;
+        if (foremostReflectedObjectPtr != nullptr) {
             // Reflection ray missed everything
-            if (reflection_intersections[indexOfForemostReflectedObject] >
+            if (minDistance >
                 accuracy) {
                 Vector3D reflectionIntersectionPosition = intersectionPoint +
-                    (reflection_direction *
-                    reflection_intersections[indexOfForemostReflectedObject]);
+                    (reflection_direction * minDistance);
                 Vector3D reflectionIntersectionDirection = reflection_direction;
                 Color reflection_intersection_color =
                     getColorAt(reflectionIntersectionPosition,
                                reflectionIntersectionDirection, scene_objects,
-                               indexOfForemostReflectedObject, scene_lights,
+                               bounding_volume_hierarchy,
+                               objPtr, scene_lights,
                                accuracy, ambientLight, raysFired, objsQueried);
                 finalColor = finalColor +
                               reflection_intersection_color.colorScalar(
@@ -192,8 +179,8 @@ int main() {
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 20;
-    size_t height = 18;
+    size_t width = 200;
+    size_t height = 180;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -304,7 +291,6 @@ int main() {
     }
     */
     BVH * bounding_volume_hierarchy = new BVH(scene_objects, Axis('x'));
-    delete bounding_volume_hierarchy;
     int aa_index;
     double xamnt, yamnt;
     for (size_t x = 0; x < width; ++x) {
@@ -361,32 +347,31 @@ int main() {
                     Vector3D cam_ray_direction = (camdir + (camright * (xamnt - 0.5)) +
                                                  (camdown * (yamnt - 0.5))).normalize();
                     Ray3D cam_ray(cam_ray_origin, cam_ray_direction);
-                    std::vector<double> intersections;
                     // Loop through objs and see if the ray intersects any objs
-                    for (std::vector<Object *>::const_iterator it =
-                            scene_objects.begin();
-                         it != scene_objects.end(); ++it) {
-                        ++objsQueried;
-                        intersections.push_back((*it)->findIntersection(cam_ray));
-                    }
+                    /* *** Without BVH
+                    Intersection intersection = getIntersection(scene_objects,
+                                                                cam_ray);
+                    */
+                    Intersection intersection = bounding_volume_hierarchy->findIntersection(cam_ray);
+                    Object * foremostObjPtr = intersection.objPtr;
+                    double minDistance = intersection.distance;
                     // Index of the least positive intersection is the closest object
-                    int foremostObjIndex = getForemostObjIndex(intersections);
-                    if (foremostObjIndex == -1) {
+                    if (foremostObjPtr == nullptr) {
                         // Set the background to black
                         tempRed[aa_index] = 0;
                         tempGreen[aa_index] = 0;
                         tempBlue[aa_index] = 0;
                     } else {
-                        if (intersections[foremostObjIndex] > accuracy) {
+                        if (minDistance > accuracy) {
                             Vector3D intersectionPoint = cam_ray_origin +
-                                (cam_ray_direction * intersections[foremostObjIndex]);
+                                (cam_ray_direction * minDistance);
                             Vector3D intersectionRayDirection = cam_ray_direction;
-                            //Color c = scene_objects[foremostObjIndex]->getColor();
                             // Resolve shadow
                             Color c = getColorAt(intersectionPoint,
                                                  intersectionRayDirection,
                                                  scene_objects,
-                                                 foremostObjIndex,
+                                                 bounding_volume_hierarchy,
+                                                 foremostObjPtr,
                                                  scene_lights,
                                                  accuracy,
                                                  ambientLight,
@@ -423,5 +408,6 @@ int main() {
     std::cout << elapsed << " seconds.\n";
     std::cout << raysFired << " rays fired.\n";
     std::cout << objsQueried << " objs queried.\n";
+    delete bounding_volume_hierarchy;
     return 0;
 }

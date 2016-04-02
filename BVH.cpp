@@ -1,6 +1,7 @@
 #include "BVH.hpp"
 #include "Object.hpp"
 #include "Triangle.hpp"
+#include "Helper.hpp"
 
 #include <algorithm>
 #include <vector>
@@ -24,9 +25,6 @@ BVH::BVH(const std::vector<Object *> & scene_objects, const Axis & axis) {
         minZ = std::min(minZ, objBBox.z_min);
     }
     bbox.set(minX, minY, minZ, maxX, maxY, maxZ);
-    if (maxX == -DBL_MAX || minX == DBL_MAX) {
-        assert(0);
-    }
     //std::cout << "Number of objects: " << scene_objects.size() << std::endl;
     // If number of objects is under a threshold, turn into leaf, split no more
     if (scene_objects.size() <= LEAF_THRESHOLD) {
@@ -91,14 +89,33 @@ BVH::BVH(const std::vector<Object *> & scene_objects, const Axis & axis) {
         left = nullptr;
     } else {
         left = new BVH(scene_objects_left, axis.next());
-        std::cout << "Allocated BVH @" << left << "\n";
     }
     if (scene_objects_right.empty()) {
         right = nullptr;
     } else {
         right = new BVH(scene_objects_right, axis.next());
-        std::cout << "Allocated BVH @" << right << "\n";
     }
+}
+
+Intersection BVH::findIntersection(const Ray3D & ray) const {
+    if (!bbox.intersects(ray)) { return Intersection(); }
+    if (!objsIncluded.empty()) { // Leaf
+        assert(objsIncluded.size() <= LEAF_THRESHOLD);
+        return getIntersection(objsIncluded, ray);
+    }
+    Intersection lookLeft, lookRight;
+    if (left) { lookLeft = left->findIntersection(ray); }
+    if (right) { lookRight = right->findIntersection(ray); }
+    if (lookLeft.objPtr && lookRight.objPtr) {
+        return (lookLeft.distance < lookRight.distance ? lookLeft : lookRight);
+    }
+    if (lookLeft.objPtr) {
+        return lookLeft;
+    }
+    if (lookRight.objPtr) {
+        return lookRight;
+    }
+    return Intersection();
 }
 
 void BVH::print() const {

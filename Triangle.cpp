@@ -43,6 +43,7 @@ BoundingBox Triangle::getBBox() const {
 // See comments for variables and the equations in Plane.cpp's findIntersection
 double Triangle::findIntersection(const Ray3D & ray) const {
     // See if the ray intersects the bounding box
+    // *** With bounding box
     if (!Object::intersectsBBox(ray)) { return -1; }
     // First check if the ray intersects with the plane (use same calculations)
     Vector3D rayDirection = ray.getDirection();
