@@ -67,7 +67,7 @@ Vector3D operator/(double scale, const Vector3D & v) {
     return Vector3D(scale / v.getX(),
                     scale / v.getY(),
                     scale / v.getZ());
-};
+}
 
 Vector3D operator/(const Vector3D & v, double scale) {
     return Vector3D(v.getX() / scale,

@@ -179,8 +179,8 @@ int main() {
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 200;
-    size_t height = 180;
+    size_t width = 192;
+    size_t height = 108;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -409,5 +409,8 @@ int main() {
     std::cout << raysFired << " rays fired.\n";
     std::cout << objsQueried << " objs queried.\n";
     delete bounding_volume_hierarchy;
+    for (auto objPtr : scene_objects) {
+        free(objPtr);
+    }
     return 0;
 }
