@@ -1,15 +1,22 @@
 #include "Grid.hpp"
 #include "Ray3D.hpp"
 
+#include <cmath>
+
 void Grid::findCellsIntersectedBy(const Ray3D & ray) {
     Vector3D rayDir = ray.getDirection();
+    Vector3D rayOrigin = ray.getOrigin();
     rayDir.normalize();
     // Initial values
-    const Vector3D deltaT = ray.getInvDirection();
-    double t_x = deltaT.getX();
-    double t_y = deltaT.getY();
-    double t_z = deltaT.getZ();
-    Vector3D cellIndex(0, 0, 0);
+    const Vector3D deltaT(1 / rayDir.getX(),
+                          1 / rayDir.getY(),
+                          1 / rayDir.getZ());
+    double t_x = (1 - rayOrigin.getX()) / rayDir.getX();
+    double t_y = (1 - rayOrigin.getY()) / rayDir.getY();
+    double t_z = (1 - rayOrigin.getZ()) / rayDir.getZ();
+    Vector3D cellIndex(floor(rayOrigin.getX()),
+                       floor(rayOrigin.getY()),
+                       floor(rayOrigin.getZ()));
     double t = 0;
     for (int i = 0; i < 40; ++i) {
         if (t_x < t_y) {

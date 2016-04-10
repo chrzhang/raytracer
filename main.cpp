@@ -178,7 +178,7 @@ int main() {
     unsigned raysFired = 0;
     unsigned objsQueried = 0;
     Grid g;
-    Ray3D dummyRay(Vector3D(0, 0, 0), Vector3D(1, 2, 3));
+    Ray3D dummyRay(Vector3D(2, 4, 6), Vector3D(1, 2, 3));
     g.findCellsIntersectedBy(dummyRay);
     start = clock();
     std::cout << "Rendering..." << std::endl;
