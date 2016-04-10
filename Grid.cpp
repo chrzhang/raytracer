@@ -24,9 +24,9 @@ int Grid::getSign(double d) {
 }
 
 bool Grid::outOfBounds(const Vector3D & cellIndex) {
-    if (cellIndex.getX() < 0 || cellIndex.getX() >= gridDim.getX() ||
-        cellIndex.getY() < 0 || cellIndex.getY() >= gridDim.getY() ||
-        cellIndex.getZ() < 0 || cellIndex.getZ() >= gridDim.getZ()) {
+    if (cellIndex.getX() < 0 || cellIndex.getX() >= gridRes.getX() ||
+        cellIndex.getY() < 0 || cellIndex.getY() >= gridRes.getY() ||
+        cellIndex.getZ() < 0 || cellIndex.getZ() >= gridRes.getZ()) {
         return true;
     }
     return false;
@@ -42,9 +42,6 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
                           std::abs(z_len / rayDir.getZ()));
     double t_x, t_y, t_z;
 
-    std::cout << "old t_x: " << (x_len - rayOrigin.getX()) / rayDir.getX() << "\n";
-    std::cout << "old t_y: " << (y_len - rayOrigin.getY()) / rayDir.getY() << "\n";
-    std::cout << "old t_z: " << (z_len - rayOrigin.getZ()) / rayDir.getZ() << "\n";
     Vector3D ogrid = rayOrigin - gridMin;
     double ocellx = ogrid.getX() / x_len;
     double ocelly = ogrid.getY() / y_len;
@@ -64,12 +61,9 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
     } else {
         t_z = ((floor(ocellz)    ) * z_len - ogrid.getZ()) / rayDir.getZ();
     }
-    std::cout << "new tx: " << t_x << "\n";
-    std::cout << "new ty: " << t_y << "\n";
-    std::cout << "new tz: " << t_z << "\n";
-    Vector3D cellIndex(floor(rayOrigin.getX()),
-                       floor(rayOrigin.getY()),
-                       floor(rayOrigin.getZ()));
+    // Check if origin falls in grid
+    if (rayOrigin < gridMin || rayOrigin > gridMax) { return; }
+    Vector3D cellIndex(floor(ocellx), floor(ocelly), floor(ocellz));
     // TODO Be sure to handle this index first before finding the next one
     double t = 0;
     int x_sign = getSign(rayDir.getX());
@@ -78,17 +72,14 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
     for (;;) {
         if (t_x < t_y) {
             if (t_z < t_x) {
-                std::cout << "Aa\n";
                 t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else if (t_x < t_z) {
-                std::cout << "Bb\n";
                 t = t_x;
                 t_x += deltaT.getX();
                 cellIndex.setX(cellIndex.getX() + x_sign);
             } else {
-                std::cout << "Cc\n";
                 t = t_x;
                 t_x += deltaT.getX();
                 t_z += deltaT.getZ();
@@ -97,17 +88,14 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
             }
         } else if (t_y < t_x) {
             if (t_z < t_y) {
-                std::cout << "Dd\n";
                 t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else if (t_y < t_z) {
-                std::cout << "Ee\n";
                 t = t_y;
                 t_y += deltaT.getY();
                 cellIndex.setY(cellIndex.getY() + y_sign);
             } else {
-                std::cout << "Ff\n";
                 t = t_y;
                 t_y += deltaT.getY();
                 t_z += deltaT.getZ();
@@ -116,19 +104,16 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
             }
         } else { // t_x = t_y
             if (t_x < t_z) {
-                std::cout << "Gg\n";
                 t = t_x;
                 t_x += deltaT.getX();
                 t_y += deltaT.getY();
                 cellIndex.setX(cellIndex.getX() + x_sign);
                 cellIndex.setY(cellIndex.getY() + y_sign);
             } else if (t_z < t_x) {
-                std::cout << "Hh\n";
                 t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else { // t_x = t_y = t_z
-                std::cout << "Ii\n";
                 t = t_x;
                 t_x += deltaT.getX();
                 t_y += deltaT.getY();
@@ -138,9 +123,9 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             }
         }
+        std::cout << cellIndex << std::endl;
         if (outOfBounds(cellIndex)) {
             break;
         }
-        std::cout << cellIndex << std::endl;
     }
 }
