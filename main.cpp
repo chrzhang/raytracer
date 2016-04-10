@@ -124,24 +124,11 @@ Color getColorAt(const Vector3D & intersectionPoint,
             Ray3D shadow_ray(intersectionPoint,
                              ((*light_it)->getPosition() +
                              (intersectionPoint.invert())).normalize());
-            std::vector<double> secondary_intersections;
-            for (auto obj_it = scene_objects.begin();
-                 obj_it != scene_objects.end() && !shadowed;
-                 ++obj_it) {
-                ++objsQueried;
-                // Check if there's any intersections between any object and
-                // the ray from the first intersection to light source
-                // If so, there's an obstacle and thus a shadow
-                secondary_intersections.push_back(
-                    (*obj_it)->findIntersection(shadow_ray));
-            }
-            for (size_t c = 0; c < secondary_intersections.size(); ++c) {
-                // Check secondary intersections and if the
-                if (secondary_intersections[c] > accuracy) {
-                    if (secondary_intersections[c] <= distanceToLightMagnitude) {
-                        shadowed = true;
-                    }
-                    break;
+            Intersection intersection =
+                bounding_volume_hierarchy->findIntersection(shadow_ray);
+            if (intersection.distance > accuracy) {
+                if (intersection.distance <= distanceToLightMagnitude) {
+                    shadowed = true;
                 }
             }
             if (!shadowed) { // Affect with light
@@ -225,11 +212,23 @@ int main() {
         Ray3D dummyRay(Vector3D(10, 10, 10), Vector3D(-1, -2, -3));
         g.findCellsIntersectedBy(dummyRay);
     }
+    {
+        std::cout << "---\n";
+        Grid g(Vector3D(0, 0, 0), Vector3D(10, 10, 10), Vector3D(3, 3, 3));
+        Ray3D dummyRay(Vector3D(3, 6, 9), Vector3D(-1, -2, -3));
+        g.findCellsIntersectedBy(dummyRay);
+    }
+    {
+        std::cout << "+++\n";
+        Grid g(Vector3D(0, 0, 0), Vector3D(12, 12, 12), Vector3D(3, 3, 3));
+        Ray3D dummyRay(Vector3D(3, 6, 9), Vector3D(-1, -2, -3));
+        g.findCellsIntersectedBy(dummyRay);
+    }
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 192;
-    size_t height = 108;
+    size_t width = 1920;
+    size_t height = 1080;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -324,21 +323,6 @@ int main() {
     scene_objects.push_back(dynamic_cast<Object *>(&tC));
     scene_objects.clear();
     PLYReader::readFromPly(scene_objects, "sceneObjects.ply");
-    /* // Add spheres of random color, size, and position
-    std::vector<Sphere> spheres;
-    for (int i = 0; i < 100; ++i) {
-        Sphere ts(origin + Vector3D(rand() % 10 - 5, rand() % 10 - 5, rand() % 10 - 5), 0.2,
-               Color((rand() % 10) / 10.0,
-                     (rand() % 10) / 10.0,
-                     (rand() % 10) / 10.0,
-                     0.3));
-        spheres.push_back(ts);
-    }
-
-    for (auto it = spheres.begin(); it != spheres.end(); ++it) {
-        scene_objects.push_back(dynamic_cast<Object *>(&(*it)));
-    }
-    */
     BVH * bounding_volume_hierarchy = new BVH(scene_objects, Axis('x'));
     int aa_index;
     double xamnt, yamnt;
