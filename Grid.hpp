@@ -3,8 +3,11 @@
 
 #include "Ray3D.hpp"
 
-struct Grid {
-    void findCellsIntersectedBy(const Ray3D &);
+class Grid {
+    size_t x_len, y_len, z_len;
+    public:
+        Grid(size_t, size_t, size_t);
+        void findCellsIntersectedBy(const Ray3D &);
 };
 
 #endif

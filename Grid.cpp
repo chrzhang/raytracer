@@ -3,17 +3,19 @@
 
 #include <cmath>
 
+Grid::Grid(size_t x, size_t y, size_t z) : x_len(x), y_len(y), z_len(z) {}
+
 void Grid::findCellsIntersectedBy(const Ray3D & ray) {
     Vector3D rayDir = ray.getDirection();
     Vector3D rayOrigin = ray.getOrigin();
     rayDir.normalize();
     // Initial values
-    const Vector3D deltaT(1 / rayDir.getX(),
-                          1 / rayDir.getY(),
-                          1 / rayDir.getZ());
-    double t_x = (1 - rayOrigin.getX()) / rayDir.getX();
-    double t_y = (1 - rayOrigin.getY()) / rayDir.getY();
-    double t_z = (1 - rayOrigin.getZ()) / rayDir.getZ();
+    const Vector3D deltaT(x_len / rayDir.getX(),
+                          y_len / rayDir.getY(),
+                          z_len / rayDir.getZ());
+    double t_x = (x_len - rayOrigin.getX()) / rayDir.getX();
+    double t_y = (y_len - rayOrigin.getY()) / rayDir.getY();
+    double t_z = (z_len - rayOrigin.getZ()) / rayDir.getZ();
     Vector3D cellIndex(floor(rayOrigin.getX()),
                        floor(rayOrigin.getY()),
                        floor(rayOrigin.getZ()));
