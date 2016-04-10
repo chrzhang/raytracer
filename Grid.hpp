@@ -9,7 +9,7 @@ class Grid {
     int getSign(double);
     bool outOfBounds(const Vector3D &);
     public:
-        Grid(const Vector3D &, const Vector3D &);
+        Grid(const Vector3D &, const Vector3D &, const Vector3D &);
         void findCellsIntersectedBy(const Ray3D &);
 };
 

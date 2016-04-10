@@ -1,11 +1,16 @@
 #include "Grid.hpp"
 #include "Ray3D.hpp"
 
+#include <cassert>
 #include <cmath>
 
-Grid::Grid(const Vector3D & gridDim,
+Grid::Grid(const Vector3D & gridMin,
+           const Vector3D & gridMax,
            const Vector3D & gridRes) {
-    this->gridDim = gridDim;
+    gridDim = gridMax - gridMin;
+    assert(gridDim.getX() > 0);
+    assert(gridDim.getY() > 0);
+    assert(gridDim.getZ() > 0);
     this->gridRes = gridRes;
     x_len = gridDim.getX() / gridRes.getX();
     y_len = gridDim.getY() / gridRes.getY();
