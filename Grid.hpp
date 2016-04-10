@@ -5,8 +5,11 @@
 
 class Grid {
     size_t x_len, y_len, z_len;
+    Vector3D gridDim, gridRes;
+    int getSign(double);
+    bool outOfBounds(const Vector3D &);
     public:
-        Grid(size_t, size_t, size_t);
+        Grid(const Vector3D &, const Vector3D &);
         void findCellsIntersectedBy(const Ray3D &);
 };
 
