@@ -10,9 +10,9 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
     Vector3D rayOrigin = ray.getOrigin();
     rayDir.normalize();
     // Initial values
-    const Vector3D deltaT(x_len / rayDir.getX(),
-                          y_len / rayDir.getY(),
-                          z_len / rayDir.getZ());
+    const Vector3D deltaT(std::abs(x_len / rayDir.getX()),
+                          std::abs(y_len / rayDir.getY()),
+                          std::abs(z_len / rayDir.getZ()));
     double t_x = (x_len - rayOrigin.getX()) / rayDir.getX();
     double t_y = (y_len - rayOrigin.getY()) / rayDir.getY();
     double t_z = (z_len - rayOrigin.getZ()) / rayDir.getZ();
