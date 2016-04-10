@@ -1,8 +1,11 @@
 #include "Grid.hpp"
 #include "Ray3D.hpp"
+#include "Object.hpp"
 
 #include <cassert>
 #include <cmath>
+#include <cfloat>
+#include <vector>
 
 Grid::Grid(const Vector3D & gridMin,
            const Vector3D & gridMax,
@@ -18,6 +21,78 @@ Grid::Grid(const Vector3D & gridMin,
     y_len = gridDim.getY() / gridRes.getY();
     z_len = gridDim.getZ() / gridRes.getZ();
     assert(x_len && y_len && z_len);
+}
+
+Grid::Grid(const std::vector<Object *> & scene_objects) {
+    // Create bounding box by finding min and max of 3D points
+    double maxX, maxY, maxZ, minX, minY, minZ;
+    maxX = maxY = maxZ = -DBL_MAX;
+    minX = minY = minZ = DBL_MAX;
+    for (auto objPtr : scene_objects) {
+        auto objBBox = objPtr->getBBox();
+        maxX = std::max(maxX, objBBox.x_max);
+        maxY = std::max(maxY, objBBox.y_max);
+        maxZ = std::max(maxZ, objBBox.z_max);
+        minX = std::min(minX, objBBox.x_min);
+        minY = std::min(minY, objBBox.y_min);
+        minZ = std::min(minZ, objBBox.z_min);
+    }
+    gridMin = Vector3D(minX, minY, minZ);
+    gridMax = Vector3D(maxX, maxY, maxZ);
+    gridDim = gridMax - gridMin;
+    assert(gridDim.getX() > 0);
+    assert(gridDim.getY() > 0);
+    assert(gridDim.getZ() > 0);
+    double lambda = 4;
+    double volume =
+        fabs(gridDim.getX()) * fabs(gridDim.getY()) * fabs(gridDim.getZ());
+    gridRes.setX(ceil(gridDim.getX() *
+                      pow((lambda * scene_objects.size()) / volume,
+                      1.0 / 3.0)));
+    gridRes.setY(ceil(gridDim.getY() *
+                      pow((lambda * scene_objects.size()) / volume,
+                      1.0 / 3.0)));
+    gridRes.setZ(ceil(gridDim.getZ() *
+                      pow((lambda * scene_objects.size()) / volume,
+                      1.0 / 3.0)));
+    x_len = gridDim.getX() / gridRes.getX();
+    y_len = gridDim.getY() / gridRes.getY();
+    z_len = gridDim.getZ() / gridRes.getZ();
+    matrix = std::vector<std::vector<std::vector<std::vector<Object *>>>>(
+                gridRes.getX() + 1,
+                std::vector<std::vector<std::vector<Object *>>>(
+                    gridRes.getY() + 1,
+                    std::vector<std::vector<Object *>>(
+                        gridRes.getZ() + 1,
+                        std::vector<Object *>())));
+    assert(matrix.size() == gridRes.getX() + 1);
+    assert(matrix[0].size() == gridRes.getY() + 1);
+    assert(matrix[0][0].size() == gridRes.getZ() + 1);
+    assert(matrix[0][0][0].size() == 0);
+    // Store references to a triangle in all the cells its bounding box overlaps
+    for (auto objPtr : scene_objects) {
+        auto objBBox = objPtr->getBBox();
+        Vector3D ogridmin =
+            Vector3D(objBBox.x_min, objBBox.y_min, objBBox.z_min) - gridMin;
+        Vector3D cellIndexMin(floor(ogridmin.getX() / x_len),
+                              floor(ogridmin.getY() / y_len),
+                              floor(ogridmin.getZ() / z_len));
+        Vector3D ogridmax =
+            Vector3D(objBBox.x_max, objBBox.y_max, objBBox.z_max) - gridMin;
+        Vector3D cellIndexMax(floor(ogridmax.getX() / x_len),
+                              floor(ogridmax.getY() / y_len),
+                              floor(ogridmax.getZ() / z_len));
+        for (double cix = cellIndexMin.getX();
+              ix <= cellIndexMax.getX(); ++cix) {
+            for (double ciy = cellIndexMin.getY();
+                 ciy <= cellIndexMax.getY(); ++ciy) {
+                for (double ciz = cellIndexMin.getZ();
+                     ciz <= cellIndexMax.getZ(); ++ciz) {
+                    matrix[cix][ciy][ciz].push_back(objPtr);
+                }
+            }
+        }
+    }
 }
 
 int Grid::getSign(double d) {

@@ -227,8 +227,8 @@ int main() {
     start = clock();
     std::cout << "Rendering..." << std::endl;
     srand(time(NULL));
-    size_t width = 1920;
-    size_t height = 1080;
+    size_t width = 768;
+    size_t height = 432;
     size_t n = width * height;
     double aspectRatio = (double) width / (double) height;
     double ambientLight = 0.2;
@@ -324,6 +324,7 @@ int main() {
     scene_objects.clear();
     PLYReader::readFromPly(scene_objects, "sceneObjects.ply");
     BVH * bounding_volume_hierarchy = new BVH(scene_objects, Axis('x'));
+    Grid g(scene_objects);
     int aa_index;
     double xamnt, yamnt;
     for (size_t x = 0; x < width; ++x) {
