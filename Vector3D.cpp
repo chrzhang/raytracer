@@ -12,22 +12,28 @@ Vector3D::Vector3D(double x, double y, double z) {
     this->z = z;
 }
 
-double Vector3D::getX() const { return x; }
+double Vector3D::getX(void) const { return x; }
 
-double Vector3D::getY() const { return y; }
+double Vector3D::getY(void) const { return y; }
 
-double Vector3D::getZ() const { return z; }
+double Vector3D::getZ(void) const { return z; }
 
-double Vector3D::getMagnitude() const {
+void Vector3D::setX(double x) { this->x = x; }
+
+void Vector3D::setY(double y) { this->y = y; }
+
+void Vector3D::setZ(double z) { this->z = z; }
+
+double Vector3D::getMagnitude(void) const {
     return sqrt((x * x) + (y * y) + (z * z));
 }
 
-Vector3D Vector3D::normalize() const {
+Vector3D Vector3D::normalize(void) const {
     double mag = getMagnitude();
     return Vector3D(x / mag, y / mag, z / mag);
 }
 
-Vector3D Vector3D::invert() const {
+Vector3D Vector3D::invert(void) const {
     return Vector3D(-x, -y, -z);
 }
 

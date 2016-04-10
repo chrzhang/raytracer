@@ -8,12 +8,15 @@ class Vector3D {
     public:
         Vector3D();
         Vector3D(double, double, double);
-        double getX() const;
-        double getY() const;
-        double getZ() const;
-        double getMagnitude() const;
-        Vector3D normalize() const;
-        Vector3D invert() const;
+        double getX(void) const;
+        double getY(void) const;
+        double getZ(void) const;
+        void setX(double);
+        void setY(double);
+        void setZ(double);
+        double getMagnitude(void) const;
+        Vector3D normalize(void) const;
+        Vector3D invert(void) const;
         double dotProduct(const Vector3D &) const;
         Vector3D crossProduct(const Vector3D &) const;
         friend Vector3D operator+(const Vector3D &, const Vector3D &);
