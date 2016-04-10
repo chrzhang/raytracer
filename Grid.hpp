@@ -4,7 +4,7 @@
 #include "Ray3D.hpp"
 
 class Grid {
-    size_t x_len, y_len, z_len;
+    double x_len, y_len, z_len;
     Vector3D gridDim, gridRes, gridMin, gridMax;
     int getSign(double);
     bool outOfBounds(const Vector3D &);

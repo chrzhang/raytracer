@@ -17,6 +17,7 @@ Grid::Grid(const Vector3D & gridMin,
     x_len = gridDim.getX() / gridRes.getX();
     y_len = gridDim.getY() / gridRes.getY();
     z_len = gridDim.getZ() / gridRes.getZ();
+    assert(x_len && y_len && z_len);
 }
 
 int Grid::getSign(double d) {
@@ -26,7 +27,9 @@ int Grid::getSign(double d) {
 bool Grid::outOfBounds(const Vector3D & cellIndex) {
     if (cellIndex.getX() < 0 || cellIndex.getX() >= gridRes.getX() ||
         cellIndex.getY() < 0 || cellIndex.getY() >= gridRes.getY() ||
-        cellIndex.getZ() < 0 || cellIndex.getZ() >= gridRes.getZ()) {
+        cellIndex.getZ() < 0 || cellIndex.getZ() >= gridRes.getZ() ||
+        isnan(cellIndex.getX()) || isnan(cellIndex.getY()) ||
+        isnan(cellIndex.getZ())) {
         return true;
     }
     return false;
@@ -36,12 +39,14 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
     Vector3D rayDir = ray.getDirection();
     Vector3D rayOrigin = ray.getOrigin();
     rayDir.normalize();
-    // Initial values
+    std::cout << "x_len: " << x_len << "\n";
+    std::cout << "y_len: " << y_len << "\n";
+    std::cout << "z_len: " << z_len << "\n";
     const Vector3D deltaT(std::abs(x_len / rayDir.getX()),
                           std::abs(y_len / rayDir.getY()),
                           std::abs(z_len / rayDir.getZ()));
+    std::cout << "deltaT: " << deltaT << "\n";
     double t_x, t_y, t_z;
-
     Vector3D ogrid = rayOrigin - gridMin;
     double ocellx = ogrid.getX() / x_len;
     double ocelly = ogrid.getY() / y_len;

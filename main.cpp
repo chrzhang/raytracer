@@ -184,7 +184,7 @@ int main() {
         g.findCellsIntersectedBy(dummyRay);
     }
     {
-        std::cout << "---\n";
+        std::cout << "+++\n";
         Grid g(Vector3D(-20, -20, -20), Vector3D(-10, -10, -10), Vector3D(10, 10, 10));
         Ray3D dummyRay(Vector3D(-17, -14, -11), Vector3D(-1, -2, -3));
         g.findCellsIntersectedBy(dummyRay);
@@ -196,8 +196,20 @@ int main() {
         g.findCellsIntersectedBy(dummyRay);
     }
     {
+        std::cout << "+++\n";
+        Grid g(Vector3D(100, 100, 100), Vector3D(110, 110, 110), Vector3D(10, 10, 10));
+        Ray3D dummyRay(Vector3D(100, 100, 100), Vector3D(1, 2, 3));
+        g.findCellsIntersectedBy(dummyRay);
+    }
+    {
         std::cout << "---\n";
         Grid g(Vector3D(0, 0, 0), Vector3D(10, 10, 10), Vector3D(10, 10, 10));
+        Ray3D dummyRay(Vector3D(0, 0, 0), Vector3D(1, 0, 0));
+        g.findCellsIntersectedBy(dummyRay);
+    }
+    {
+        std::cout << "+++\n";
+        Grid g(Vector3D(0, 0, 0), Vector3D(5, 5, 5), Vector3D(10, 10, 10));
         Ray3D dummyRay(Vector3D(0, 0, 0), Vector3D(1, 0, 0));
         g.findCellsIntersectedBy(dummyRay);
     }
@@ -208,7 +220,7 @@ int main() {
         g.findCellsIntersectedBy(dummyRay);
     }
     {
-        std::cout << "---\n";
+        std::cout << "+++\n";
         Grid g(Vector3D(0, 0, 0), Vector3D(10, 10, 10), Vector3D(10, 10, 10));
         Ray3D dummyRay(Vector3D(10, 10, 10), Vector3D(-1, -2, -3));
         g.findCellsIntersectedBy(dummyRay);
