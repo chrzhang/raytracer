@@ -178,18 +178,39 @@ int main() {
     unsigned raysFired = 0;
     unsigned objsQueried = 0;
     {
+        std::cout << "---\n";
         Grid g(Vector3D(0, 0, 0), Vector3D(10, 10, 10), Vector3D(10, 10, 10));
         Ray3D dummyRay(Vector3D(3, 6, 9), Vector3D(-1, -2, -3));
         g.findCellsIntersectedBy(dummyRay);
     }
     {
+        std::cout << "---\n";
+        Grid g(Vector3D(-20, -20, -20), Vector3D(-10, -10, -10), Vector3D(10, 10, 10));
+        Ray3D dummyRay(Vector3D(-17, -14, -11), Vector3D(-1, -2, -3));
+        g.findCellsIntersectedBy(dummyRay);
+    }
+    {
+        std::cout << "---\n";
         Grid g(Vector3D(0, 0, 0), Vector3D(10, 10, 10), Vector3D(10, 10, 10));
         Ray3D dummyRay(Vector3D(0, 0, 0), Vector3D(1, 2, 3));
         g.findCellsIntersectedBy(dummyRay);
     }
     {
+        std::cout << "---\n";
         Grid g(Vector3D(0, 0, 0), Vector3D(10, 10, 10), Vector3D(10, 10, 10));
         Ray3D dummyRay(Vector3D(0, 0, 0), Vector3D(1, 0, 0));
+        g.findCellsIntersectedBy(dummyRay);
+    }
+    {
+        std::cout << "---\n";
+        Grid g(Vector3D(-10, -10, -10), Vector3D(0, 0, 0), Vector3D(10, 10, 10));
+        Ray3D dummyRay(Vector3D(0, 0, 0), Vector3D(-1, -2, -3));
+        g.findCellsIntersectedBy(dummyRay);
+    }
+    {
+        std::cout << "---\n";
+        Grid g(Vector3D(0, 0, 0), Vector3D(10, 10, 10), Vector3D(10, 10, 10));
+        Ray3D dummyRay(Vector3D(10, 10, 10), Vector3D(-1, -2, -3));
         g.findCellsIntersectedBy(dummyRay);
     }
     start = clock();

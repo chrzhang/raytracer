@@ -62,7 +62,8 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
         t_z = ((floor(ocellz)    ) * z_len - ogrid.getZ()) / rayDir.getZ();
     }
     // Check if origin falls in grid
-    if (rayOrigin < gridMin || rayOrigin > gridMax) { return; }
+    if (rayOrigin < gridMin || rayOrigin > gridMax) {
+        std::cout << "Ray origin is outside grid\n"; return; }
     Vector3D cellIndex(floor(ocellx), floor(ocelly), floor(ocellz));
     // TODO Be sure to handle this index first before finding the next one
     double t = 0;
