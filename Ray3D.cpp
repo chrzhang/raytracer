@@ -1,7 +1,11 @@
 #include "Ray3D.hpp"
 
-Ray3D::Ray3D(Vector3D o, Vector3D d) : origin(o), direction(d),
-                                       invDirection(1 / d) {}
+Ray3D::Ray3D(Vector3D o, Vector3D d) {
+    origin = o;
+    direction = d;
+    direction.normalize();
+    invDirection = 1 / d;
+}
 
 Vector3D Ray3D::getOrigin() const { return origin; }
 

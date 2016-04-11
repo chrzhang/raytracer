@@ -28,6 +28,7 @@ class Vector3D {
         friend std::ostream & operator<<(std::ostream &, const Vector3D &);
         friend bool operator<(const Vector3D &, const Vector3D &);
         friend bool operator>(const Vector3D &, const Vector3D &);
+        friend bool operator==(const Vector3D &, const Vector3D &);
 };
 
 #endif

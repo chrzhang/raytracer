@@ -88,19 +88,11 @@ Color getColorAt(const Vector3D & intersectionPoint,
         Intersection intersection = getIntersection(scene_objects,
                                                     reflection_ray);
         */
+        /* Using only BVH
         Intersection intersection =
             bounding_volume_hierarchy->findIntersection(reflection_ray);
-        /*
-        Intersection i5000 = grid.findIntersection(reflection_ray, false);
-        if (i5000.objPtr != intersection.objPtr || i5000.distance != intersection.distance) {
-            std::cout << "grid got " << i5000.distance << " at " << i5000.objPtr << "\n";
-            std::cout << "bvh got " << intersection.distance << " at " << intersection.objPtr << "\n";
-            assert(false);
-        } else {
-            std::cout << "got " << i5000.distance << " at " << i5000.objPtr << "\n";
-            std::cout << "yay\n";
-        }
         */
+        Intersection intersection = grid.findIntersection(reflection_ray, true);
         Object * foremostReflectedObjectPtr = intersection.objPtr;
         double minDistance = intersection.distance;
         if (foremostReflectedObjectPtr != nullptr) {
@@ -140,8 +132,11 @@ Color getColorAt(const Vector3D & intersectionPoint,
             Ray3D shadow_ray(intersectionPoint,
                              ((*light_it)->getPosition() +
                              (intersectionPoint.invert())).normalize());
+            /* Using only BVH
             Intersection intersection =
                 bounding_volume_hierarchy->findIntersection(shadow_ray);
+            */
+            Intersection intersection = grid.findIntersection(shadow_ray, true);
             if (intersection.distance > accuracy) {
                 if (intersection.distance <= distanceToLightMagnitude) {
                     shadowed = true;
@@ -174,6 +169,29 @@ Color getColorAt(const Vector3D & intersectionPoint,
         }
     }
     return finalColor.clip();
+}
+
+void testAccelerationStructures(const BVH * bounding_volume_hierarchy,
+                                const Grid & grid) {
+    srand(time(NULL));
+    for (double iteration = 0; iteration < 1000000;) {
+        Ray3D randomRay(Vector3D((rand() % 100) / 10.0 - 5,
+                                 (rand() % 100) / 10.0 - 5,
+                                 (rand() % 100) / 10.0 - 5),
+                        Vector3D((rand() % 100) / 10.0 - 5,
+                                 (rand() % 100) / 10.0 - 5,
+                                 (rand() % 100) / 10.0 - 5));
+        if (randomRay.getDirection() == Vector3D(0, 0, 0)) { continue; }
+        Intersection i1 = bounding_volume_hierarchy->findIntersection(randomRay);
+        Intersection i2 = grid.findIntersection(randomRay, true);
+        if (i1 != i2) {
+            assert(false);
+        } else {
+            if (i1.objPtr) { std::cout << "miss\r"; }
+            else { std::cout << "hit\r"; ++iteration; }
+        }
+    }
+    std::cout << std::endl;
 }
 
 int main() {
@@ -341,6 +359,7 @@ int main() {
     PLYReader::readFromPly(scene_objects, "sceneObjects.ply");
     BVH * bounding_volume_hierarchy = new BVH(scene_objects, Axis('x'));
     Grid grid(scene_objects);
+    testAccelerationStructures(bounding_volume_hierarchy, grid);
     int aa_index;
     double xamnt, yamnt;
     for (size_t x = 0; x < width; ++x) {

@@ -8,6 +8,8 @@ struct Intersection {
     double distance;
     Intersection() : objPtr(nullptr), distance(-1) {}
     Intersection(Object * op, double d) : objPtr(op), distance(d) {}
+    friend bool operator==(const Intersection &, const Intersection &);
+    friend bool operator!=(const Intersection &, const Intersection &);
 };
 
 #endif

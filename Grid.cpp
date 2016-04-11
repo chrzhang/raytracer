@@ -161,23 +161,18 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
     if (rayOrigin < gridMin || rayOrigin > gridMax) {
         std::cout << "Ray origin is outside grid\n"; return; }
     Vector3D cellIndex(floor(ocellx), floor(ocelly), floor(ocellz));
-    // TODO Be sure to handle this index first before finding the next one
-    double t = 0;
     int x_sign = getSign(rayDir.getX());
     int y_sign = getSign(rayDir.getY());
     int z_sign = getSign(rayDir.getZ());
     for (;;) {
         if (t_x < t_y) {
             if (t_z < t_x) {
-                t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else if (t_x < t_z) {
-                t = t_x;
                 t_x += deltaT.getX();
                 cellIndex.setX(cellIndex.getX() + x_sign);
             } else {
-                t = t_x;
                 t_x += deltaT.getX();
                 t_z += deltaT.getZ();
                 cellIndex.setX(cellIndex.getX() + x_sign);
@@ -185,15 +180,12 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
             }
         } else if (t_y < t_x) {
             if (t_z < t_y) {
-                t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else if (t_y < t_z) {
-                t = t_y;
                 t_y += deltaT.getY();
                 cellIndex.setY(cellIndex.getY() + y_sign);
             } else {
-                t = t_y;
                 t_y += deltaT.getY();
                 t_z += deltaT.getZ();
                 cellIndex.setY(cellIndex.getY() + y_sign);
@@ -201,17 +193,14 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
             }
         } else { // t_x = t_y
             if (t_x < t_z) {
-                t = t_x;
                 t_x += deltaT.getX();
                 t_y += deltaT.getY();
                 cellIndex.setX(cellIndex.getX() + x_sign);
                 cellIndex.setY(cellIndex.getY() + y_sign);
             } else if (t_z < t_x) {
-                t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else { // t_x = t_y = t_z
-                t = t_x;
                 t_x += deltaT.getX();
                 t_y += deltaT.getY();
                 t_z += deltaT.getZ();
@@ -268,7 +257,6 @@ Intersection Grid::findIntersection(const Ray3D & ray, bool cast) const {
     }
     Vector3D cellIndex(floor(ocellx), floor(ocelly), floor(ocellz));
     assert(!outOfBounds(cellIndex));
-    double t = 0;
     int x_sign = getSign(rayDir.getX());
     int y_sign = getSign(rayDir.getY());
     int z_sign = getSign(rayDir.getZ());
@@ -291,15 +279,12 @@ Intersection Grid::findIntersection(const Ray3D & ray, bool cast) const {
         }
         if (t_x < t_y) {
             if (t_z < t_x) {
-                t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else if (t_x < t_z) {
-                t = t_x;
                 t_x += deltaT.getX();
                 cellIndex.setX(cellIndex.getX() + x_sign);
             } else {
-                t = t_x;
                 t_x += deltaT.getX();
                 t_z += deltaT.getZ();
                 cellIndex.setX(cellIndex.getX() + x_sign);
@@ -307,15 +292,12 @@ Intersection Grid::findIntersection(const Ray3D & ray, bool cast) const {
             }
         } else if (t_y < t_x) {
             if (t_z < t_y) {
-                t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else if (t_y < t_z) {
-                t = t_y;
                 t_y += deltaT.getY();
                 cellIndex.setY(cellIndex.getY() + y_sign);
             } else {
-                t = t_y;
                 t_y += deltaT.getY();
                 t_z += deltaT.getZ();
                 cellIndex.setY(cellIndex.getY() + y_sign);
@@ -323,17 +305,14 @@ Intersection Grid::findIntersection(const Ray3D & ray, bool cast) const {
             }
         } else { // t_x = t_y
             if (t_x < t_z) {
-                t = t_x;
                 t_x += deltaT.getX();
                 t_y += deltaT.getY();
                 cellIndex.setX(cellIndex.getX() + x_sign);
                 cellIndex.setY(cellIndex.getY() + y_sign);
             } else if (t_z < t_x) {
-                t = t_z;
                 t_z += deltaT.getZ();
                 cellIndex.setZ(cellIndex.getZ() + z_sign);
             } else { // t_x = t_y = t_z
-                t = t_x;
                 t_x += deltaT.getX();
                 t_y += deltaT.getY();
                 t_z += deltaT.getZ();
