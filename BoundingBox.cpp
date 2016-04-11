@@ -18,25 +18,59 @@ void BoundingBox::set(double xn, double yn, double zn, double xx, double yx,
 }
 
 // Use axis-aligned bounding volume test for slabs to check for intersection
-bool BoundingBox::intersects(const Ray3D & ray) const {
+double BoundingBox::intersects(const Ray3D & ray) const {
+    double tx_min, tx_max, ty_min, ty_max, tz_min, tz_max;
     double roX = ray.getOrigin().getX();
     double roY = ray.getOrigin().getY();
     double roZ = ray.getOrigin().getZ();
     double riX = ray.getInvDirection().getX();
     double riY = ray.getInvDirection().getY();
     double riZ = ray.getInvDirection().getZ();
-    double tx_min = (x_min - roX) * riX;
-    double tx_max = (x_max - roX) * riX;
-    if (tx_min > tx_max) { std::swap(tx_min, tx_max); }
-    double ty_min = (y_min - roY) * riY;
-    double ty_max = (y_max - roY) * riY;
-    if (ty_min > ty_max) { std::swap(ty_min, ty_max); }
-    if (tx_min > ty_max || ty_min > tx_max) { return false; }
-    double tz_min = (z_min - roZ) * riZ;
-    double tz_max = (z_max - roZ) * riZ;
-    if (tz_min > tz_max) { std::swap(tz_min, tz_max); }
-    if (tx_min > tz_max || tz_min > tx_max) { return false; }
-    return true;
+    if (riX < 0) {
+        tx_min = (x_max - roX) * riX;
+        tx_max = (x_min - roX) * riX;
+    } else {
+        tx_min = (x_min - roX) * riX;
+        tx_max = (x_max - roX) * riX;
+    }
+    if (riY < 0) {
+        ty_min = (y_max - roY) * riY;
+        ty_max = (y_min - roY) * riY;
+    } else {
+        ty_min = (y_min - roY) * riY;
+        ty_max = (y_max - roY) * riY;
+    }
+    if ((tx_min > ty_max) || (ty_min > tx_max)) {
+        return 0;
+    }
+    if (ty_min > tx_min) {
+        tx_min = ty_min;
+    }
+    if (ty_max < tx_max) {
+        tx_max = ty_max;
+    }
+    if (riZ < 0) {
+        tz_min = (z_max - roZ) * riZ;
+        tz_max = (z_min - roZ) * riZ;
+    } else {
+        tz_min = (z_min - roZ) * riZ;
+        tz_max = (z_max - roZ) * riZ;
+    }
+    if ((tx_min > tz_max) || (tz_min > tx_max)) {
+        return 0;
+    }
+    if (tz_min > tx_min) {
+        tx_min = tz_min;
+    }
+    if (tz_max < tx_max) {
+        tx_max = tz_max;
+    }
+    if (tx_min < 0) {
+        tx_min = tx_max;
+        if (tx_min < 0) { return 0; }
+    }
+    // tx_min is the intersection
+    return tx_min;
 }
 
 std::ostream & operator<<(std::ostream & os, const BoundingBox & bbox) {

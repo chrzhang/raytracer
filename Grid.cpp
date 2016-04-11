@@ -1,6 +1,8 @@
 #include "Grid.hpp"
 #include "Ray3D.hpp"
 #include "Object.hpp"
+#include "Intersection.hpp"
+#include "Helper.hpp"
 
 #include <cassert>
 #include <cmath>
@@ -39,6 +41,7 @@ Grid::Grid(const std::vector<Object *> & scene_objects) {
     }
     gridMin = Vector3D(minX, minY, minZ);
     gridMax = Vector3D(maxX, maxY, maxZ);
+    bbox.set(minX, minY, minZ, maxX, maxY, maxZ);
     gridDim = gridMax - gridMin;
     assert(gridDim.getX() > 0);
     assert(gridDim.getY() > 0);
@@ -65,10 +68,16 @@ Grid::Grid(const std::vector<Object *> & scene_objects) {
                     std::vector<std::vector<Object *>>(
                         gridRes.getZ() + 1,
                         std::vector<Object *>())));
+    for (auto x : matrix) {
+        assert(x.size() == gridRes.getY() + 1);
+        for (auto y : x) {
+            assert(y.size() == gridRes.getZ() + 1);
+            for (auto objs : y) {
+                assert(objs.size() == 0);
+            }
+        }
+    }
     assert(matrix.size() == gridRes.getX() + 1);
-    assert(matrix[0].size() == gridRes.getY() + 1);
-    assert(matrix[0][0].size() == gridRes.getZ() + 1);
-    assert(matrix[0][0][0].size() == 0);
     // Store references to a triangle in all the cells its bounding box overlaps
     for (auto objPtr : scene_objects) {
         auto objBBox = objPtr->getBBox();
@@ -83,7 +92,7 @@ Grid::Grid(const std::vector<Object *> & scene_objects) {
                               floor(ogridmax.getY() / y_len),
                               floor(ogridmax.getZ() / z_len));
         for (double cix = cellIndexMin.getX();
-              ix <= cellIndexMax.getX(); ++cix) {
+              cix <= cellIndexMax.getX(); ++cix) {
             for (double ciy = cellIndexMin.getY();
                  ciy <= cellIndexMax.getY(); ++ciy) {
                 for (double ciz = cellIndexMin.getZ();
@@ -93,16 +102,23 @@ Grid::Grid(const std::vector<Object *> & scene_objects) {
             }
         }
     }
+    for (auto x : matrix) {
+        assert(x.size() == gridRes.getY() + 1);
+        for (auto y : x) {
+            assert(y.size() == gridRes.getZ() + 1);
+        }
+    }
+    assert(matrix.size() == gridRes.getX() + 1);
 }
 
-int Grid::getSign(double d) {
+int Grid::getSign(double d) const {
     return (d == 0 ? 0 : (d > 0 ? 1 : -1));
 }
 
-bool Grid::outOfBounds(const Vector3D & cellIndex) {
-    if (cellIndex.getX() < 0 || cellIndex.getX() >= gridRes.getX() ||
-        cellIndex.getY() < 0 || cellIndex.getY() >= gridRes.getY() ||
-        cellIndex.getZ() < 0 || cellIndex.getZ() >= gridRes.getZ() ||
+bool Grid::outOfBounds(const Vector3D & cellIndex) const {
+    if (cellIndex.getX() < 0 || cellIndex.getX() > gridRes.getX() ||
+        cellIndex.getY() < 0 || cellIndex.getY() > gridRes.getY() ||
+        cellIndex.getZ() < 0 || cellIndex.getZ() > gridRes.getZ() ||
         isnan(cellIndex.getX()) || isnan(cellIndex.getY()) ||
         isnan(cellIndex.getZ())) {
         return true;
@@ -208,5 +224,147 @@ void Grid::findCellsIntersectedBy(const Ray3D & ray) {
         if (outOfBounds(cellIndex)) {
             break;
         }
+    }
+}
+
+Intersection Grid::findIntersection(const Ray3D & ray, bool cast) const {
+    Vector3D rayDir = ray.getDirection();
+    rayDir.normalize();
+    Vector3D rayOrigin = ray.getOrigin();
+    // Check if origin falls in grid
+    if (rayOrigin < gridMin || rayOrigin > gridMax) {
+        auto r = bbox.intersects(ray);
+        if (r) {
+            rayOrigin = rayOrigin + rayDir * bbox.intersects(ray);
+        } else {
+            return Intersection();
+        }
+    }
+    if (rayOrigin < gridMin || rayOrigin > gridMax) {
+        assert(false);
+    }
+    const Vector3D deltaT(std::abs(x_len / rayDir.getX()),
+                          std::abs(y_len / rayDir.getY()),
+                          std::abs(z_len / rayDir.getZ()));
+    double t_x, t_y, t_z;
+    Vector3D ogrid = rayOrigin - gridMin;
+    double ocellx = ogrid.getX() / x_len;
+    double ocelly = ogrid.getY() / y_len;
+    double ocellz = ogrid.getZ() / z_len;
+    if (rayDir.getX() >= 0) {
+        t_x = ((floor(ocellx) + 1) * x_len - ogrid.getX()) / rayDir.getX();
+    } else {
+        t_x = ((floor(ocellx)    ) * x_len - ogrid.getX()) / rayDir.getX();
+    }
+    if (rayDir.getY() >= 0) {
+        t_y = ((floor(ocelly) + 1) * y_len - ogrid.getY()) / rayDir.getY();
+    } else {
+        t_y = ((floor(ocelly)    ) * y_len - ogrid.getY()) / rayDir.getY();
+    }
+    if (rayDir.getZ() >= 0) {
+        t_z = ((floor(ocellz) + 1) * z_len - ogrid.getZ()) / rayDir.getZ();
+    } else {
+        t_z = ((floor(ocellz)    ) * z_len - ogrid.getZ()) / rayDir.getZ();
+    }
+    Vector3D cellIndex(floor(ocellx), floor(ocelly), floor(ocellz));
+    assert(!outOfBounds(cellIndex));
+    double t = 0;
+    int x_sign = getSign(rayDir.getX());
+    int y_sign = getSign(rayDir.getY());
+    int z_sign = getSign(rayDir.getZ());
+    Intersection bestSoFar;
+    bestSoFar.distance = DBL_MAX;
+    for (;;) {
+        if (outOfBounds(cellIndex)) {
+            break;
+        }
+        auto r =
+            getIntersection(
+                matrix[cellIndex.getX()][cellIndex.getY()][cellIndex.getZ()],
+                ray);
+        if (r.distance != -1 && r.distance < bestSoFar.distance) {
+            bestSoFar.objPtr = r.objPtr;
+            bestSoFar.distance = r.distance;
+            if (!cast) {
+                return bestSoFar;
+            }
+        }
+        if (t_x < t_y) {
+            if (t_z < t_x) {
+                t = t_z;
+                t_z += deltaT.getZ();
+                cellIndex.setZ(cellIndex.getZ() + z_sign);
+            } else if (t_x < t_z) {
+                t = t_x;
+                t_x += deltaT.getX();
+                cellIndex.setX(cellIndex.getX() + x_sign);
+            } else {
+                t = t_x;
+                t_x += deltaT.getX();
+                t_z += deltaT.getZ();
+                cellIndex.setX(cellIndex.getX() + x_sign);
+                cellIndex.setZ(cellIndex.getZ() + z_sign);
+            }
+        } else if (t_y < t_x) {
+            if (t_z < t_y) {
+                t = t_z;
+                t_z += deltaT.getZ();
+                cellIndex.setZ(cellIndex.getZ() + z_sign);
+            } else if (t_y < t_z) {
+                t = t_y;
+                t_y += deltaT.getY();
+                cellIndex.setY(cellIndex.getY() + y_sign);
+            } else {
+                t = t_y;
+                t_y += deltaT.getY();
+                t_z += deltaT.getZ();
+                cellIndex.setY(cellIndex.getY() + y_sign);
+                cellIndex.setZ(cellIndex.getZ() + z_sign);
+            }
+        } else { // t_x = t_y
+            if (t_x < t_z) {
+                t = t_x;
+                t_x += deltaT.getX();
+                t_y += deltaT.getY();
+                cellIndex.setX(cellIndex.getX() + x_sign);
+                cellIndex.setY(cellIndex.getY() + y_sign);
+            } else if (t_z < t_x) {
+                t = t_z;
+                t_z += deltaT.getZ();
+                cellIndex.setZ(cellIndex.getZ() + z_sign);
+            } else { // t_x = t_y = t_z
+                t = t_x;
+                t_x += deltaT.getX();
+                t_y += deltaT.getY();
+                t_z += deltaT.getZ();
+                cellIndex.setX(cellIndex.getX() + x_sign);
+                cellIndex.setY(cellIndex.getY() + y_sign);
+                cellIndex.setZ(cellIndex.getZ() + z_sign);
+            }
+        }
+    }
+    if (bestSoFar.objPtr) {
+        return bestSoFar;
+    } else {
+        return Intersection();
+    }
+}
+
+void Grid::printIndicesContaining(Object * objPtr) const {
+    bool found = false;
+    for (double x = 0; x <= gridRes.getX(); ++x) {
+        for (double y = 0; y <= gridRes.getY(); ++y) {
+            for (double z = 0; z <= gridRes.getZ(); ++z) {
+                for (auto obj : matrix[x][y][z]) {
+                    if (obj == objPtr) {
+                        found = true;
+                        std::cout << x << " " << y << " " << z << "\n";
+                    }
+                }
+            }
+        }
+    }
+    if (!found) {
+        std::cout << "Could not find " << objPtr << " in grid.\n";
     }
 }

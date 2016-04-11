@@ -30,5 +30,9 @@ Intersection getIntersection(const std::vector<Object *> & scene_objects,
         }
         ++index;
     }
-    return Intersection(objPtr, minDistance);
+    if (objPtr && minDistance > 0) {
+        return Intersection(objPtr, minDistance);
+    } else {
+        return Intersection();
+    }
 }

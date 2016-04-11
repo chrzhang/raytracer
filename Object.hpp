@@ -15,7 +15,7 @@ class Object {
         virtual double findIntersection(const Ray3D &) const = 0;
         BoundingBox getBBox() const;
         void setBBox(double, double, double, double, double, double);
-        bool intersectsBBox(const Ray3D &) const;
+        double intersectsBBox(const Ray3D &) const;
 };
 
 #endif

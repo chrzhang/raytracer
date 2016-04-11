@@ -9,7 +9,7 @@ struct BoundingBox {
     double x_min, y_min, z_min, x_max, y_max, z_max;
     BoundingBox();
     void set(double, double, double, double, double, double);
-    bool intersects(const Ray3D &) const;
+    double intersects(const Ray3D &) const;
     friend std::ostream & operator<<(std::ostream & os,
                                      const BoundingBox & bbox);
 };

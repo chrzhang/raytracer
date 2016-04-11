@@ -32,10 +32,15 @@
 #include "Intersection.hpp"
 #include "Grid.hpp"
 
+#define USEBRUTEFORCE 0
+#define USEBVH 1
+#define USEGRID 2
+
 Color getColorAt(const Vector3D & intersectionPoint,
                  const Vector3D & intersectionRayDirection,
                  const std::vector<Object *> & scene_objects,
                  const BVH * bounding_volume_hierarchy,
+                 const Grid & grid,
                  Object * objPtr,
                  const std::vector<Source *> & scene_lights,
                  double accuracy,
@@ -85,6 +90,17 @@ Color getColorAt(const Vector3D & intersectionPoint,
         */
         Intersection intersection =
             bounding_volume_hierarchy->findIntersection(reflection_ray);
+        /*
+        Intersection i5000 = grid.findIntersection(reflection_ray, false);
+        if (i5000.objPtr != intersection.objPtr || i5000.distance != intersection.distance) {
+            std::cout << "grid got " << i5000.distance << " at " << i5000.objPtr << "\n";
+            std::cout << "bvh got " << intersection.distance << " at " << intersection.objPtr << "\n";
+            assert(false);
+        } else {
+            std::cout << "got " << i5000.distance << " at " << i5000.objPtr << "\n";
+            std::cout << "yay\n";
+        }
+        */
         Object * foremostReflectedObjectPtr = intersection.objPtr;
         double minDistance = intersection.distance;
         if (foremostReflectedObjectPtr != nullptr) {
@@ -98,7 +114,7 @@ Color getColorAt(const Vector3D & intersectionPoint,
                     getColorAt(reflectionIntersectionPosition,
                                reflectionIntersectionDirection, scene_objects,
                                bounding_volume_hierarchy,
-                               objPtr, scene_lights,
+                               grid, objPtr, scene_lights,
                                accuracy, ambientLight, raysFired, objsQueried);
                 finalColor = finalColor +
                               reflection_intersection_color.colorScalar(
@@ -324,7 +340,7 @@ int main() {
     scene_objects.clear();
     PLYReader::readFromPly(scene_objects, "sceneObjects.ply");
     BVH * bounding_volume_hierarchy = new BVH(scene_objects, Axis('x'));
-    Grid g(scene_objects);
+    Grid grid(scene_objects);
     int aa_index;
     double xamnt, yamnt;
     for (size_t x = 0; x < width; ++x) {
@@ -386,7 +402,10 @@ int main() {
                     Intersection intersection = getIntersection(scene_objects,
                                                                 cam_ray);
                     */
-                    Intersection intersection = bounding_volume_hierarchy->findIntersection(cam_ray);
+                    /* ** Only BVH */
+                    //Intersection intersection = bounding_volume_hierarchy->findIntersection(cam_ray);
+                    // Grid
+                    Intersection intersection = grid.findIntersection(cam_ray, true);
                     Object * foremostObjPtr = intersection.objPtr;
                     double minDistance = intersection.distance;
                     // Index of the least positive intersection is the closest object
@@ -405,6 +424,7 @@ int main() {
                                                  intersectionRayDirection,
                                                  scene_objects,
                                                  bounding_volume_hierarchy,
+                                                 grid,
                                                  foremostObjPtr,
                                                  scene_lights,
                                                  accuracy,
